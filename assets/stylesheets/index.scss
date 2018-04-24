@@ -1,0 +1,12 @@
+@import './bootstrap_custom.scss';
+@import './main.scss';
+
+@font-face {
+  font-family: 'rtRaleway';
+  src: url('../webfonts/rtraleway-regular-webfont.eot'); /* IE9 Compat Modes */
+  src: url('../webfonts/rtraleway-regular-webfont.eot?#iefiex') format('embedded-opentype'), /* IE6 - IE8 */
+       url('../webfonts/rtraleway-regular-webfont.woff2') format('woff2'), /* Modern Browsers */
+       url('../webfonts/rtraleway-regular-webfont.woff') format('woff'), /* Pretty Modern Browsers */
+       url('../webfonts/rtraleway-regular-webfont.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../webfonts/rtraleway-regular-webfont.svg') format('svg'); /* Legacy iOS */
+}

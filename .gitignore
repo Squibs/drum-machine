@@ -1,0 +1,5 @@
+codealike.json
+node_modules
+dist
+yarn-error.log
+.vscode
