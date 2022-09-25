@@ -21,7 +21,14 @@ const config: GatsbyConfig = {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `images`,
-        path: `${__dirname}/src/images`,
+        path: `${__dirname}/src/media/images`,
+      },
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `sounds`,
+        path: `${__dirname}/src/media/sounds`,
       },
     },
     `gatsby-plugin-sharp`, // image processing functions from the sharp image processing library
@@ -36,7 +43,7 @@ const config: GatsbyConfig = {
         background_color: `#663399`,
         theme_color: `#663399`,
         display: `minimal-ui`,
-        icon: `src/images/favicon.svg`,
+        icon: `src/media/images/favicon.svg`,
       },
     },
     `gatsby-plugin-styled-components`, // styled-components
