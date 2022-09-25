@@ -11,3 +11,6 @@ A drum machine I have created while going through the _Front End Development Lib
 <em>Work in Progress</em>
 
 The final _Front End Development Library_ project I have completed on [freeCodeCamp](https://www.freecodecamp.org/).
+
+[My Gatsby Starter]()
+[Certificate]()
