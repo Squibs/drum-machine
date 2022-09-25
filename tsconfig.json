@@ -1,4 +1,4 @@
 {
-  "extends": "@squibs/ts-config/tsconfig.normal.json",
-  "include": ["src/**/*.ts", "src/**/*.tsx", "gatsby-*.js"]
+  "extends": "@squibs/ts-config/tsconfig.react.json",
+  "include": ["src/**/*.ts", "src/**/*.tsx", "gatsby-*.tsx", "gatsby-*.ts"]
 }
