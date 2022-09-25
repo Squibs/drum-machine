@@ -1,9 +1,23 @@
 import React from 'react';
 import styled from 'styled-components';
 import { SEO } from '../components';
-import { PageContainer } from '../containers';
 
 /* --------------------------------- styles --------------------------------- */
+
+const PageContainer = styled.div`
+  background-color: ${({ theme }) => theme.colors.primaryDark};
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: ${({ theme }) => theme.colors.whiteTint};
+
+  & h1,
+  p {
+    text-align: center;
+  }
+`;
 
 /* ---------------------------------- types --------------------------------- */
 
@@ -16,7 +30,7 @@ import { PageContainer } from '../containers';
 const IndexPage = () => {
   return (
     <PageContainer>
-      <h1>Squibs&apos; Gatsby Starter</h1>
+      <h1>Drum Machine</h1>
     </PageContainer>
   );
 };
