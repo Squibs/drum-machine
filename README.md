@@ -1,42 +1,13 @@
-# Gatsby Boilerplate
+# Drum Machine
 
-A personal starting point for my Gatsby based projects. This starter / boilerplate is using `Gatsby`, `Typescript`, `Redux Toolkit`, and my general-use `linting` rules [[Squibs-Scripts](https://github.com/Squibs/squibs-scripts)].
+A drum machine I have created while going through the _Front End Development Libraries_ challenges and lessons at https://www.freecodecamp.org
 
-## Folder Structure
+## [Front End Development Certificaton Projects](https://github.com/Squibs/freeCodeCamp#freecodecamp) (Go Back to My freeCodeCamp Repository)
 
-[[Gatsby Folder Structure](https://www.gatsbyjs.com/docs/reference/gatsby-project-structure/)]
+<a href="https://squibs.github.io/drum-machine" tart="_blank"><img src="project documents/mockup-desktop.png" height="400" alt="Screnshot of my Drum Machine app / website"/></a>
 
-```
-/
-|-- /.cache
-|-- /public
-|-- /src
-  |-- /images
-  |-- /store
-  |-- /structures
-    |-- /components
-    |-- /containers
-    |-- /hooks
-    |-- /layouts
-    |-- /pages
-    |-- /templates
-  |-- /vistas
-    |-- /design
-    |-- /styles
-    |-- /theme
-|-- /static
-|-- gatsby-browser.tsx
-|-- gatsby-config.ts
-|-- gatsby-node.ts
-|-- gatsby-ssr.tsx
-```
+### [Drum Machine](https://squibs.github.io/drum-machine/) (Click to view functional site)
 
-I figured I would try to figure out my own folder structure for something that makes sense to me. All of this will probably change after I do a few projects with this boilerplate and figure out more of what works for me.
+<em>Work in Progress</em>
 
-I've grouped all non-style components together in a folder called `structures`. This is things like `components`, `containers`, `pages`, and `templates`, ect. Because I'm using [styled-components](https://styled-components.com/), my components will also have the styles alongside the component in the same file.
-
-Since I'm using `styled-components` I wanted to group a lot of the global-type-styled-components into their own folder. I couldn't really decide on a folder name so I stuck with `vistas`. This will house:
-
-- `design` which contains the enums that define the overall, "style variables," if you will.
-- `styles` which is global css/styled styles
-- `theme` which mostly translates the files in `design` into a globally accessible theme variable for css/styled
+The final _Front End Development Library_ project I have completed on [freeCodeCamp](https://www.freecodecamp.org/).
