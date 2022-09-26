@@ -119,8 +119,6 @@ const Knob = ({ degrees, min, max, value, size }: KnobProps) => {
 
   return (
     <KnobStyles className="knob" style={knobStyle}>
-      <div className="ticks" />
-
       <div
         role="slider"
         aria-valuenow={deg}
