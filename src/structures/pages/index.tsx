@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Knob, SEO } from '../components';
+import { useMediaQuery } from '../hooks';
 
 /* -------------------------------------------------------------------------- */
 /*                                   styles                                   */
@@ -32,6 +33,16 @@ const DrumMachineControlsContainer = styled.div``;
 const DrumMachineLogicContainer = styled.div``;
 
 const KnobContainer = styled.div`
+  & .knob {
+    display: none;
+  }
+
+  @media (pointer: fine) {
+    & .knob {
+      display: flex;
+    }
+  }
+
   display: flex;
   justify-content: center;
 `;
@@ -57,8 +68,11 @@ const DrumPad = styled.button``;
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
+const knobWithSettings = () => <Knob size={100} degrees={180} min={1} max={100} value={50} />;
 
 const IndexPage = () => {
+  const hasPointer = useMediaQuery(`(pointer: fine)`);
+
   return (
     <PageContainer>
       <DrumMachineContainer>
@@ -66,9 +80,28 @@ const IndexPage = () => {
         <DrumMachineControlsContainer>
           <DrumMachineLogicContainer>
             <KnobContainer>
-              <Knob size={100} degrees={180} min={1} max={100} value={0} />
-              {/* <Knob />
-              <Knob /> */}
+              {hasPointer ? (
+                <>
+                  {knobWithSettings()}
+                  {knobWithSettings()}
+                  {knobWithSettings()}
+                </>
+              ) : (
+                <>
+                  <label htmlFor="volumeKnob">
+                    Volume
+                    <input type="range" id="volumeKnob" min="1" max="100" />
+                  </label>
+                  <label htmlFor="pitchKnob">
+                    Pitch
+                    <input type="range" id="pitchKnob" min="1" max="100" />
+                  </label>
+                  <label htmlFor="panKnob">
+                    Pan
+                    <input type="range" id="panKnob" min="1" max="100" />
+                  </label>
+                </>
+              )}
             </KnobContainer>
             <Display>
               <span />
