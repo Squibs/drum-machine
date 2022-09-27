@@ -41,6 +41,10 @@ const DrumMachineContainer = styled.main`
   grid-template: auto 1fr / 1fr;
   overflow-y: scroll;
   padding: 10px;
+
+  ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
+    overflow: hidden;
+  `}
 `;
 
 const DrumMachineControlsContainer = styled.div`
@@ -49,6 +53,12 @@ const DrumMachineControlsContainer = styled.div`
   grid-template-areas:
     'drum-pads'
     'drum-controls';
+
+  ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
+    grid-template: 1fr / 1fr 2fr;
+    grid-template-areas:
+      'drum-controls drum-pads';
+  `}
 `;
 
 /* --------------------------- drum logic controls -------------------------- */
@@ -61,6 +71,14 @@ const DrumMachineLogicContainer = styled.div`
     'drum-display'
     'drum-buttons'
     'drum-knobs';
+
+  ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
+    grid-template: repeat(3, 1fr) / 1fr;
+    grid-template-areas:
+      'drum-knobs'
+      'drum-display'
+      'drum-buttons';
+  `}
 `;
 
 const KnobContainer = styled.div`
@@ -82,11 +100,14 @@ const KnobContainer = styled.div`
   & .knob {
     display: none;
   }
-  @media (pointer: fine) {
-    & .knob {
-      display: flex;
+
+  /* knobs only display if a pointing device is available */
+  ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
+    @media (pointer: fine) {
+      grid-template: 1fr / repeat(3, 1fr);
+      & .knob { display: grid; }
     }
-  }
+  `}
 `;
 
 const Display = styled.div`
@@ -127,6 +148,10 @@ const DrumPadContainer = styled.div`
   display: grid;
   grid-template: repeat(4, 1fr) / repeat(3, 1fr);
   grid-gap: 5px;
+
+  ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
+    grid-template: repeat(3, 1fr) / repeat(4, 1fr);
+  `}
 `;
 
 const DrumPad = styled.button`
