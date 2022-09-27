@@ -68,7 +68,7 @@ const DrumPad = styled.button``;
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
-const knobWithSettings = () => <Knob size={100} degrees={180} min={1} max={100} value={50} />;
+const knobWithSettings = () => <Knob size={50} degrees={180} min={1} max={100} value={50} />;
 
 const IndexPage = () => {
   const hasPointer = useMediaQuery(`(pointer: fine)`);

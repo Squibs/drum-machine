@@ -7,35 +7,33 @@ import styled from 'styled-components';
 
 /* --------------------------------- styles --------------------------------- */
 
-const KnobStyles = styled.div`
-  .knob {
-    display: flex;
-    position: relative;
-  }
+const KnobContainer = styled.div`
+  display: flex;
+  position: relative;
+  margin: 20px;
+`;
 
-  .knob.outer {
-    border-radius: 50%;
-    border: 1px solid #222;
-    border-bottom: 5px solid #222;
-    background-image: radial-gradient(100% 70%, #666 6%, #333 90%);
-    box-shadow: 0 5px 15px 2px black, 0 0 5px 3px black, 0 0 0 12px #444;
-  }
+const KnobOuter = styled.div`
+  border-radius: 50%;
+  border: 1px solid #222;
+  border-bottom: 5px solid #222;
+  background-image: radial-gradient(100% 70%, #666 6%, #333 90%);
+  box-shadow: 0 5px 12px 2px black, 0 0 5px 3px black, 0 0 0 8px #444;
+`;
 
-  .knob.inner {
-    border-radius: 50%;
-  }
+const KnobInner = styled.div`
+  border-radius: 50%;
+`;
 
-  .knob.inner .grip {
-    position: absolute;
-    width: 5%;
-    height: 5%;
-    bottom: 2%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 50%;
-    background: #509eec;
-    box-shadow: 0 0 3px 1px black;
-  }
+const KnobGrip = styled.div`
+  position: absolute;
+  width: 5%;
+  height: 30%;
+  bottom: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #509eec;
+  box-shadow: 0 0 3px 1px black;
 `;
 
 /* ---------------------------------- types --------------------------------- */
@@ -118,8 +116,8 @@ const Knob = ({ degrees, min, max, value, size }: KnobProps) => {
   innerStyle.transform = `rotate(${deg}deg)`;
 
   return (
-    <KnobStyles className="knob" style={knobStyle}>
-      <div
+    <KnobContainer className="knob" style={knobStyle}>
+      <KnobOuter
         role="slider"
         aria-valuenow={deg}
         className="knob outer"
@@ -127,11 +125,11 @@ const Knob = ({ degrees, min, max, value, size }: KnobProps) => {
         onMouseDown={startDrag}
         tabIndex={0}
       >
-        <div className="knob inner" style={innerStyle}>
-          <div className="grip" />
-        </div>
-      </div>
-    </KnobStyles>
+        <KnobInner className="knob inner" style={innerStyle}>
+          <KnobGrip className="grip" />
+        </KnobInner>
+      </KnobOuter>
+    </KnobContainer>
   );
 };
 
