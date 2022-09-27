@@ -10,6 +10,13 @@ const GlobalStyle = createGlobalStyle`
     min-width: 280px;
     position: relative;
   }
+
+  html {
+    box-sizing: border-box;
+  }
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
 `;
 
 /* -------------------------------- component ------------------------------- */

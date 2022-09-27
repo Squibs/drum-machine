@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { ThemeConsumer } from 'styled-components';
 import { Knob, SEO } from '../components';
 import { useMediaQuery } from '../hooks';
 
@@ -8,12 +8,14 @@ import { useMediaQuery } from '../hooks';
 /* -------------------------------------------------------------------------- */
 
 const PageContainer = styled.div`
-  background-color: ${({ theme }) => theme.colors.primaryDark};
+  background-color: #cccccc;
   display: flex;
   flex-direction: column;
   height: 100%;
   color: ${({ theme }) => theme.colors.whiteTint};
   text-align: center;
+  justify-content: space-around;
+  align-items: center;
 
   & footer,
   & h1 {
@@ -26,36 +28,112 @@ const PageContainer = styled.div`
   }
 `;
 
-const DrumMachineContainer = styled.main``;
+/* ------------------------------ drum machine ------------------------------ */
 
-const DrumMachineControlsContainer = styled.div``;
+const DrumMachineContainer = styled.main`
+  width: 90%;
+  height: 90%;
+  background-color: #212226;
+  border-radius: 25px;
+  border: 5px solid #8e8d92;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.75);
+  display: grid;
+  grid-template: auto 1fr / 1fr;
+  overflow-y: scroll;
+  padding: 10px;
+`;
 
-const DrumMachineLogicContainer = styled.div``;
+const DrumMachineControlsContainer = styled.div`
+  display: grid;
+  grid-template: repeat(2, 1fr) / 1fr;
+  grid-template-areas:
+    'drum-pads'
+    'drum-controls';
+`;
+
+/* --------------------------- drum logic controls -------------------------- */
+
+const DrumMachineLogicContainer = styled.div`
+  grid-area: drum-controls;
+  display: grid;
+  grid-template: 1fr 0.5fr 1fr / 1fr;
+  grid-template-areas:
+    'drum-display'
+    'drum-buttons'
+    'drum-knobs';
+`;
 
 const KnobContainer = styled.div`
+  grid-area: drum-knobs;
+  display: grid;
+  grid-template: repeat(3, 1fr) / 1fr;
+
+  & label {
+    display: grid;
+    grid-template: 1fr / 1fr 2fr;
+    align-items: center;
+  }
+
+  & input {
+    width: 90%;
+  }
+
+  /* knobs only display on larger screens */
   & .knob {
     display: none;
   }
-
   @media (pointer: fine) {
     & .knob {
       display: flex;
     }
   }
+`;
 
+const Display = styled.div`
   display: flex;
   justify-content: center;
-`;
+  align-items: center;
 
-const Display = styled.div``;
+  & span {
+    color: ${({ theme }) => theme.colors.primaryDark};
+    background-color: #d9d9d9;
+    width: 100%;
+    padding: 20px;
+  }
+`;
 
 const ButtonsContainer = styled.div`
-  margin-top: 300px;
+  grid-area: drum-buttons;
+  display: grid;
+  grid-template: 1fr / repeat(3, 1fr);
+  grid-gap: 10%;
+
+  /* button container */
+  & label {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    & input {
+      height: 35px;
+    }
+  }
 `;
 
-const DrumPadContainer = styled.div``;
+/* -------------------------------- drum pads ------------------------------- */
 
-const DrumPad = styled.button``;
+const DrumPadContainer = styled.div`
+  grid-area: drum-pads;
+  display: grid;
+  grid-template: repeat(4, 1fr) / repeat(3, 1fr);
+  grid-gap: 5px;
+`;
+
+const DrumPad = styled.button`
+  border-radius: 15px;
+  padding: 0;
+  border: none;
+`;
 
 /* -------------------------------------------------------------------------- */
 /*                                    types                                   */
@@ -104,7 +182,7 @@ const IndexPage = () => {
               )}
             </KnobContainer>
             <Display>
-              <span />
+              <span>I&apos;m a screen.</span>
             </Display>
             <ButtonsContainer>
               <label htmlFor="PowerButton">
