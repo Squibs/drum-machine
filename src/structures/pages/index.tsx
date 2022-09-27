@@ -256,4 +256,4 @@ export default IndexPage;
 
 // export const query = graphql``;
 
-export const Head = () => <SEO title="Home Page" />;
+export const Head = () => <SEO title="Drum Machine" />;

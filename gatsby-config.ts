@@ -2,10 +2,10 @@ import type { GatsbyConfig } from 'gatsby';
 
 const config: GatsbyConfig = {
   siteMetadata: {
-    title: `Squibs' Gatsby Starter`,
-    description: `My personal starting point for Gatsby projects.`,
+    title: `Squibs`,
+    description: `A drum machine I created while going through the projects and lessons at freeCodeCamp.`,
     author: `@SquibsVids`,
-    siteUrl: `https://www.yourdomain.tld`,
+    siteUrl: `https://https://squibs.github.io/drum-machine`,
   },
   plugins: [
     {
