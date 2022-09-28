@@ -195,17 +195,50 @@ const DrumPad = styled.button`
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
-const knobWithSettings = (id: string, size: number) => (
-  <Knob id={id} size={size} degrees={182} min={1} max={100} value={50} />
-);
+const accessKeys = ['q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'z', 'x', 'c', 'v'];
+
+const handleButtonClick = (event: React.MouseEvent | React.KeyboardEvent) => {
+  const mouseEvent = event as React.MouseEvent;
+  const keyboardEvent = event as React.KeyboardEvent;
+
+  if (keyboardEvent.key) {
+    accessKeys.forEach((key) => {
+      if (key === keyboardEvent.key) {
+        // play sound assigned to accesskey
+      }
+    });
+  } else {
+    const target = mouseEvent.target as HTMLButtonElement;
+    const pressedButton = target.id.slice(-1).toLowerCase();
+
+    accessKeys.forEach((key) => {
+      if (key === pressedButton) {
+        // play sound assigned to accesskey
+      }
+    });
+  }
+};
 
 const renderDrumPads = (amount: number) => {
   const drumPads = [];
-  for (let i = 0; i <= amount; i += 1) {
-    drumPads.push(<DrumPad />);
+
+  for (let i = 0; i < amount; i += 1) {
+    // eslint-disable-next-line jsx-a11y/no-access-key
+    drumPads.push(
+      <DrumPad
+        id={`drumKey${accessKeys[i].toUpperCase()}`}
+        onKeyDown={handleButtonClick}
+        onClick={handleButtonClick}
+      />,
+    );
   }
+
   return drumPads;
 };
+
+const knobWithSettings = (id: string, size: number) => (
+  <Knob id={id} size={size} degrees={182} min={1} max={100} value={50} />
+);
 
 const knobRenderHelper = (type: string, id: string, text: string, knobSize?: number) => {
   return (
@@ -272,10 +305,6 @@ const IndexPage = () => {
                 <input id="BankButton" type="button" />
                 Bank
               </label>
-              {/* <label htmlFor="UnknownButton">
-                <input id="UnknownButton" type="button" />
-                Unknown
-              </label> */}
             </ButtonsContainer>
           </DrumMachineLogicContainer>
           <DrumPadContainer>{renderDrumPads(12)}</DrumPadContainer>
