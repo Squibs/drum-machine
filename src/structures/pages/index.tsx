@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { Knob, SEO } from '../components';
 import { useMediaQuery } from '../hooks';
+import { dk1Cymbal1, dk1Cymbal2, dk1Cymbal3, dk1Hihat1, dk1Hihat2, dk1HihatOpen, dk1LowTom, dk1MidTom, dk1HighTom, dk1Kick1, dk1Kick2, dk1Snare1, dk1Snare2, dk1SideStick1, dk1SideStick2, dk1Ride } from '../../media/sounds/drum-kit-1'; // prettier-ignore
+import { dk2Cymbal1, dk2Cymbal2, dk2Cymbal3, dk2Hihat1, dk2Hihat2, dk2HihatOpen, dk2LowTom, dk2MidTom, dk2HighTom, dk2Kick1, dk2Kick2, dk2Snare1, dk2Snare2, dk2SideStick1, dk2SideStick2, dk2Ride } from '../../media/sounds/drum-kit-2'; // prettier-ignore
 
 /* -------------------------------------------------------------------------- */
 /*                                   styles                                   */
@@ -182,6 +184,11 @@ const DrumPad = styled.button`
   border-radius: 15px;
   padding: 0;
   border: none;
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
 `;
 
 /* -------------------------------------------------------------------------- */
@@ -195,75 +202,12 @@ const DrumPad = styled.button`
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
-const accessKeys = ['q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'z', 'x', 'c', 'v'];
-
-const handleButtonClick = (event: React.MouseEvent | React.KeyboardEvent) => {
-  const mouseEvent = event as React.MouseEvent;
-  const keyboardEvent = event as React.KeyboardEvent;
-
-  if (keyboardEvent.key) {
-    accessKeys.forEach((key) => {
-      if (key === keyboardEvent.key) {
-        // play sound assigned to accesskey
-      }
-    });
-  } else {
-    const target = mouseEvent.target as HTMLButtonElement;
-    const pressedButton = target.id.slice(-1).toLowerCase();
-
-    accessKeys.forEach((key) => {
-      if (key === pressedButton) {
-        // play sound assigned to accesskey
-      }
-    });
-  }
-};
-
-const renderDrumPads = (amount: number) => {
-  const drumPads = [];
-
-  for (let i = 0; i < amount; i += 1) {
-    // eslint-disable-next-line jsx-a11y/no-access-key
-    drumPads.push(
-      <DrumPad
-        id={`drumKey${accessKeys[i].toUpperCase()}`}
-        onKeyDown={handleButtonClick}
-        onClick={handleButtonClick}
-      />,
-    );
-  }
-
-  return drumPads;
-};
-
-const knobWithSettings = (id: string, size: number) => (
-  <Knob id={id} size={size} degrees={182} min={1} max={100} value={50} />
-);
-
-const knobRenderHelper = (type: string, id: string, text: string, knobSize?: number) => {
-  return (
-    <label htmlFor={id}>
-      {type === 'knob' ? (
-        <>
-          {knobWithSettings(id, knobSize || 100)}
-          {text}
-        </>
-      ) : (
-        <>
-          {text}
-          <input type="range" id={id} min="1" max="100" />
-        </>
-      )}
-    </label>
-  );
-};
-
 const IndexPage = () => {
   const hasPointer = useMediaQuery(`(pointer: fine)`);
   const screenIs4k = useMediaQuery(`screen and (min-width: 3500px)`);
   const screenIs1440p = useMediaQuery(`screen and (min-width: 2200px)`);
-  let knobSize;
 
+  let knobSize: number;
   if (screenIs4k) {
     knobSize = 200;
   } else if (screenIs1440p) {
@@ -271,6 +215,82 @@ const IndexPage = () => {
   } else {
     knobSize = 100;
   }
+
+  const accessKeys = ['q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'z', 'x', 'c', 'v'];
+
+  // plays correct sound depending on which drum pad was pressed
+  const handleButtonClick = (event: React.MouseEvent | KeyboardEvent) => {
+    const mouseEvent = event as React.MouseEvent;
+    const keyboardEvent = event as KeyboardEvent;
+
+    if (keyboardEvent.key) {
+      accessKeys.forEach((key) => {
+        if (key === keyboardEvent.key) {
+          // play sound assigned to accesskey
+
+          const audio = new Audio(dk2Cymbal1);
+          audio.play();
+        }
+      });
+    } else {
+      const target = mouseEvent.target as HTMLButtonElement;
+      const pressedButton = target.id.slice(-1).toLowerCase();
+
+      accessKeys.forEach((key) => {
+        if (key === pressedButton) {
+          // play sound assigned to accesskey
+
+          const audio = new Audio(dk2Cymbal1);
+          audio.play();
+        }
+      });
+    }
+  };
+
+  // helps render out multiple knobs or sliders depending on screen size (determined in 'render()')
+  const knobRenderHelper = (type: string, id: string, text: string) => {
+    const knobWithSettings = (size: number) => (
+      <Knob key={id} id={id} size={size} degrees={182} min={1} max={100} value={50} />
+    );
+
+    return (
+      <label htmlFor={id}>
+        {type === 'knob' ? (
+          <>
+            {knobWithSettings(knobSize || 100)}
+            {text}
+          </>
+        ) : (
+          <>
+            {text}
+            <input type="range" id={id} min="1" max="100" />
+          </>
+        )}
+      </label>
+    );
+  };
+
+  // helps render out multiple drum pads
+  const renderDrumPads = (amount: number) => {
+    const drumPads = [];
+
+    for (let i = 0; i < amount; i += 1) {
+      drumPads.push(
+        <DrumPad
+          key={`drumKey${accessKeys[i].toUpperCase()}`}
+          id={`drumKey${accessKeys[i].toUpperCase()}`}
+          onClick={handleButtonClick}
+        />,
+      );
+    }
+
+    return drumPads;
+  };
+
+  // listen for keyboard presses
+  useEffect(() => {
+    document.addEventListener('keydown', handleButtonClick);
+  });
 
   return (
     <PageContainer>
@@ -281,9 +301,9 @@ const IndexPage = () => {
             <KnobContainer>
               {hasPointer ? (
                 <>
-                  {knobRenderHelper('knob', 'volumeKnob', 'Volume', knobSize)}
-                  {knobRenderHelper('knob', 'pitchKnob', 'Pitch', knobSize)}
-                  {knobRenderHelper('knob', 'panKnob', 'Pan', knobSize)}
+                  {knobRenderHelper('knob', 'volumeKnob', 'Volume')}
+                  {knobRenderHelper('knob', 'pitchKnob', 'Pitch')}
+                  {knobRenderHelper('knob', 'panKnob', 'Pan')}
                 </>
               ) : (
                 <>
