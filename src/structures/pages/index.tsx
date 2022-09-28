@@ -195,25 +195,49 @@ const DrumPad = styled.button`
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
-const knobWithSettings = (id: string, size: number) => {
-  return <Knob id={id} size={size} degrees={182} min={1} max={100} value={50} />;
+const knobWithSettings = (id: string, size: number) => (
+  <Knob id={id} size={size} degrees={182} min={1} max={100} value={50} />
+);
+
+const renderDrumPads = (amount: number) => {
+  const drumPads = [];
+  for (let i = 0; i <= amount; i += 1) {
+    drumPads.push(<DrumPad />);
+  }
+  return drumPads;
+};
+
+const knobRenderHelper = (type: string, id: string, text: string, knobSize?: number) => {
+  return (
+    <label htmlFor={id}>
+      {type === 'knob' ? (
+        <>
+          {knobWithSettings(id, knobSize || 100)}
+          {text}
+        </>
+      ) : (
+        <>
+          {text}
+          <input type="range" id={id} min="1" max="100" />
+        </>
+      )}
+    </label>
+  );
 };
 
 const IndexPage = () => {
   const hasPointer = useMediaQuery(`(pointer: fine)`);
-  const is1440p = useMediaQuery(`screen and (min-width: 2200px)`);
-  const is4k = useMediaQuery(`screen and (min-width: 3500px)`);
-  let size;
+  const screenIs4k = useMediaQuery(`screen and (min-width: 3500px)`);
+  const screenIs1440p = useMediaQuery(`screen and (min-width: 2200px)`);
+  let knobSize;
 
-  if (is4k) {
-    size = 200;
-  } else if (is1440p) {
-    size = 125;
+  if (screenIs4k) {
+    knobSize = 200;
+  } else if (screenIs1440p) {
+    knobSize = 125;
   } else {
-    size = 100;
+    knobSize = 100;
   }
-
-  console.log(size);
 
   return (
     <PageContainer>
@@ -224,33 +248,15 @@ const IndexPage = () => {
             <KnobContainer>
               {hasPointer ? (
                 <>
-                  <label htmlFor="volumeKnob">
-                    {knobWithSettings('volumeKnob', size)}
-                    Volume
-                  </label>
-                  <label htmlFor="pitchKnob">
-                    {knobWithSettings('pitchKnob', size)}
-                    Pitch
-                  </label>
-                  <label htmlFor="panKnob">
-                    {knobWithSettings('panKnob', size)}
-                    Pan
-                  </label>
+                  {knobRenderHelper('knob', 'volumeKnob', 'Volume', knobSize)}
+                  {knobRenderHelper('knob', 'pitchKnob', 'Pitch', knobSize)}
+                  {knobRenderHelper('knob', 'panKnob', 'Pan', knobSize)}
                 </>
               ) : (
                 <>
-                  <label htmlFor="volumeKnob">
-                    Volume
-                    <input type="range" id="volumeKnob" min="1" max="100" />
-                  </label>
-                  <label htmlFor="pitchKnob">
-                    Pitch
-                    <input type="range" id="pitchKnob" min="1" max="100" />
-                  </label>
-                  <label htmlFor="panKnob">
-                    Pan
-                    <input type="range" id="panKnob" min="1" max="100" />
-                  </label>
+                  {knobRenderHelper('slider', 'volumeKnob', 'Volume')}
+                  {knobRenderHelper('slider', 'pitchKnob', 'Pitch')}
+                  {knobRenderHelper('slider', 'panKnob', 'Pan')}
                 </>
               )}
             </KnobContainer>
@@ -272,20 +278,7 @@ const IndexPage = () => {
               </label> */}
             </ButtonsContainer>
           </DrumMachineLogicContainer>
-          <DrumPadContainer>
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-            <DrumPad />
-          </DrumPadContainer>
+          <DrumPadContainer>{renderDrumPads(12)}</DrumPadContainer>
         </DrumMachineControlsContainer>
       </DrumMachineContainer>
       <footer>
