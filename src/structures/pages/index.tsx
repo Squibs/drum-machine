@@ -58,6 +58,7 @@ const DrumMachineControlsContainer = styled.div`
     grid-template: 1fr / 1fr 2fr;
     grid-template-areas:
       'drum-controls drum-pads';
+    padding: 50px;
   `}
 `;
 
@@ -78,6 +79,7 @@ const DrumMachineLogicContainer = styled.div`
       'drum-knobs'
       'drum-display'
       'drum-buttons';
+    padding-right: 50px;
   `}
 `;
 
@@ -105,9 +107,24 @@ const KnobContainer = styled.div`
   ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
     @media (pointer: fine) {
       grid-template: 1fr / repeat(3, 1fr);
+      align-items: center;
+      justify-items: center;
+
       & .knob { display: grid; }
     }
   `}
+
+  @media screen and (min-width: 2200px) {
+    & .knob {
+      transform: scale(1.15);
+    }
+  }
+
+  @media screen and (min-width: 3500px) {
+    & .knob {
+      transform: scale(1.5);
+    }
+  }
 `;
 
 const Display = styled.div`
@@ -121,6 +138,12 @@ const Display = styled.div`
     width: 100%;
     padding: 20px;
   }
+
+  ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
+    & span {
+      padding: 50px;
+    }
+  `}
 `;
 
 const ButtonsContainer = styled.div`
@@ -135,9 +158,18 @@ const ButtonsContainer = styled.div`
     flex-direction: column;
     height: 100%;
 
+    /* power / bank / 3rd buttons */
     & input {
       height: 35px;
     }
+
+    ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
+      justify-content: center;
+
+      & input {
+        height: 75px;
+      }
+    `}
   }
 `;
 
@@ -151,6 +183,7 @@ const DrumPadContainer = styled.div`
 
   ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
     grid-template: repeat(3, 1fr) / repeat(4, 1fr);
+    grid-gap: 30px;
   `}
 `;
 
@@ -171,7 +204,7 @@ const DrumPad = styled.button`
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
-const knobWithSettings = () => <Knob size={50} degrees={180} min={1} max={100} value={50} />;
+const knobWithSettings = () => <Knob size={100} degrees={180} min={1} max={100} value={50} />;
 
 const IndexPage = () => {
   const hasPointer = useMediaQuery(`(pointer: fine)`);
