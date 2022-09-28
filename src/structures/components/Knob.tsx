@@ -38,6 +38,8 @@ const KnobGrip = styled.div`
 
 const KnobTicks = styled.div`
   position: absolute;
+  left: 50%;
+  top: 50%;
 
   & div {
     position: absolute;
@@ -130,8 +132,6 @@ const Knob = ({ id, degrees, min, max, value, size }: KnobProps) => {
         deg: tDeg,
         tickStyle: {
           height: tSize + 10,
-          left: tSize - 16,
-          top: tSize - 15,
           transform: `rotate(${tDeg}deg)`,
           transformOrigin: 'top',
           zIndex: 1,

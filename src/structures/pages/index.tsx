@@ -1,5 +1,5 @@
 import React from 'react';
-import styled, { ThemeConsumer } from 'styled-components';
+import styled from 'styled-components';
 import { Knob, SEO } from '../components';
 import { useMediaQuery } from '../hooks';
 
@@ -41,10 +41,6 @@ const DrumMachineContainer = styled.main`
   grid-template: auto 1fr / 1fr;
   overflow-y: scroll;
   padding: 10px;
-
-  ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
-    overflow: hidden;
-  `}
 `;
 
 const DrumMachineControlsContainer = styled.div`
@@ -116,18 +112,6 @@ const KnobContainer = styled.div`
       }
     }
   `}
-
-  @media screen and (min-width: 2200px) {
-    & .knob {
-      transform: scale(1.15);
-    }
-  }
-
-  @media screen and (min-width: 3500px) {
-    & .knob {
-      transform: scale(1.5);
-    }
-  }
 `;
 
 const Display = styled.div`
@@ -152,28 +136,32 @@ const Display = styled.div`
 const ButtonsContainer = styled.div`
   grid-area: drum-buttons;
   display: grid;
-  grid-template: 1fr / repeat(3, 1fr);
+  grid-template: 1fr / 1fr 1fr;
   grid-gap: 10%;
 
   /* button container */
   & label {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    display: grid;
+    align-items: center;
 
-    /* power / bank / 3rd buttons */
+    /* power / bank buttons */
     & input {
       height: 35px;
+      width: 100%;
     }
+  }
 
-    ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
-      justify-content: center;
+  ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
+    & label {
+      align-self: start;
+      margin: auto 0;
 
       & input {
         height: 75px;
+        margin-bottom: 10px;
       }
-    `}
-  }
+    }
+  `}
 `;
 
 /* -------------------------------- drum pads ------------------------------- */
@@ -186,7 +174,7 @@ const DrumPadContainer = styled.div`
 
   ${({ theme }) => theme.breakpoints.for3TabletPortraitUp()`
     grid-template: repeat(3, 1fr) / repeat(4, 1fr);
-    grid-gap: 30px;
+    grid-gap: 2%;
   `}
 `;
 
@@ -207,12 +195,25 @@ const DrumPad = styled.button`
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
-const knobWithSettings = (id: string) => (
-  <Knob id={id} size={100} degrees={180} min={1} max={100} value={50} />
-);
+const knobWithSettings = (id: string, size: number) => {
+  return <Knob id={id} size={size} degrees={182} min={1} max={100} value={50} />;
+};
 
 const IndexPage = () => {
   const hasPointer = useMediaQuery(`(pointer: fine)`);
+  const is1440p = useMediaQuery(`screen and (min-width: 2200px)`);
+  const is4k = useMediaQuery(`screen and (min-width: 3500px)`);
+  let size;
+
+  if (is4k) {
+    size = 200;
+  } else if (is1440p) {
+    size = 125;
+  } else {
+    size = 100;
+  }
+
+  console.log(size);
 
   return (
     <PageContainer>
@@ -224,15 +225,15 @@ const IndexPage = () => {
               {hasPointer ? (
                 <>
                   <label htmlFor="volumeKnob">
-                    {knobWithSettings('volumeKnob')}
+                    {knobWithSettings('volumeKnob', size)}
                     Volume
                   </label>
                   <label htmlFor="pitchKnob">
-                    {knobWithSettings('pitchKnob')}
+                    {knobWithSettings('pitchKnob', size)}
                     Pitch
                   </label>
                   <label htmlFor="panKnob">
-                    {knobWithSettings('panKnob')}
+                    {knobWithSettings('panKnob', size)}
                     Pan
                   </label>
                 </>
@@ -265,10 +266,10 @@ const IndexPage = () => {
                 <input id="BankButton" type="button" />
                 Bank
               </label>
-              <label htmlFor="UnknownButton">
+              {/* <label htmlFor="UnknownButton">
                 <input id="UnknownButton" type="button" />
                 Unknown
-              </label>
+              </label> */}
             </ButtonsContainer>
           </DrumMachineLogicContainer>
           <DrumPadContainer>
