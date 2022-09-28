@@ -19,3 +19,9 @@ drum kit 1 is Korg MR-16
 drum kit 2 is Nintendo NES
 
 both from KB6
+
+| Low Tom   | Mid Tom    | High Tom | Cymbal 1  |
+| --------- | ---------- | -------- | --------- |
+| Hihat     | Open Hihat | Hihat    | Ride      |
+| Sidestick | Snare      | Snare    | Sidestick |
+| cymbal 2  | Kick       | Kick     | Cymbal 3  |
