@@ -55,6 +55,7 @@ const KnobTicks = styled.div`
 /* ---------------------------------- types --------------------------------- */
 
 type KnobProps = {
+  id: string;
   degrees: number;
   min: number;
   max: number;
@@ -64,7 +65,7 @@ type KnobProps = {
 
 /* -------------------------------- component ------------------------------- */
 
-const Knob = ({ degrees, min, max, value, size }: KnobProps) => {
+const Knob = ({ id, degrees, min, max, value, size }: KnobProps) => {
   const convertRange = (
     oldMin: number,
     oldMax: number,
@@ -165,7 +166,7 @@ const Knob = ({ degrees, min, max, value, size }: KnobProps) => {
   innerStyle.transform = `rotate(${deg}deg)`;
 
   return (
-    <KnobWithStyles className="knob" style={knobStyle}>
+    <KnobWithStyles id={id} className="knob" style={knobStyle}>
       <KnobTicks>{renderTicks()}</KnobTicks>
       <KnobOuter
         role="slider"

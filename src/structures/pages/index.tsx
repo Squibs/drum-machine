@@ -111,6 +111,9 @@ const KnobContainer = styled.div`
       justify-items: center;
 
       & .knob { display: flex; }
+      & label {
+        grid-template: 2fr 1fr / 1fr;
+      }
     }
   `}
 
@@ -204,7 +207,9 @@ const DrumPad = styled.button`
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
-const knobWithSettings = () => <Knob size={100} degrees={180} min={1} max={100} value={50} />;
+const knobWithSettings = (id: string) => (
+  <Knob id={id} size={100} degrees={180} min={1} max={100} value={50} />
+);
 
 const IndexPage = () => {
   const hasPointer = useMediaQuery(`(pointer: fine)`);
@@ -218,9 +223,18 @@ const IndexPage = () => {
             <KnobContainer>
               {hasPointer ? (
                 <>
-                  {knobWithSettings()}
-                  {knobWithSettings()}
-                  {knobWithSettings()}
+                  <label htmlFor="volumeKnob">
+                    {knobWithSettings('volumeKnob')}
+                    Volume
+                  </label>
+                  <label htmlFor="pitchKnob">
+                    {knobWithSettings('pitchKnob')}
+                    Pitch
+                  </label>
+                  <label htmlFor="panKnob">
+                    {knobWithSettings('panKnob')}
+                    Pan
+                  </label>
                 </>
               ) : (
                 <>
