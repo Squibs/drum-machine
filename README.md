@@ -14,3 +14,8 @@ The final _Front End Development Library_ project I have completed on [freeCodeC
 
 [My Gatsby Starter]()
 [Certificate]()
+
+drum kit 1 is Korg MR-16
+drum kit 2 is Nintendo NES
+
+both from KB6
