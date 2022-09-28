@@ -7,10 +7,9 @@ import styled from 'styled-components';
 
 /* --------------------------------- styles --------------------------------- */
 
-const KnobContainer = styled.div`
+const KnobWithStyles = styled.div`
   display: flex;
   position: relative;
-  margin: 20px;
 `;
 
 const KnobOuter = styled.div`
@@ -19,6 +18,7 @@ const KnobOuter = styled.div`
   border-bottom: 5px solid #222;
   background-image: radial-gradient(100% 70%, #666 6%, #333 90%);
   box-shadow: 0 5px 12px 2px black, 0 0 5px 3px black, 0 0 0 8px #444;
+  z-index: 2;
 `;
 
 const KnobInner = styled.div`
@@ -34,6 +34,22 @@ const KnobGrip = styled.div`
   transform: translateX(-50%);
   background: #509eec;
   box-shadow: 0 0 3px 1px black;
+`;
+
+const KnobTicks = styled.div`
+  position: absolute;
+
+  & div {
+    position: absolute;
+    background: black;
+    box-shadow: inset 0 0 0 0 black;
+    width: 3px;
+    transition: box-shadow 0.5s;
+
+    &.active {
+      box-shadow: inset 0 0 5px 2px #509eec, 0 0 0 1px #369;
+    }
+  }
 `;
 
 /* ---------------------------------- types --------------------------------- */
@@ -101,6 +117,39 @@ const Knob = ({ degrees, min, max, value, size }: KnobProps) => {
     });
   };
 
+  const renderTicks = () => {
+    const numTicks = 38; // number of ticks
+    const ticks = [];
+    const incr = degrees / (numTicks - 1);
+    const tSize = size * 0.15 + size / 2;
+
+    for (let tDeg = startAngle; tDeg <= endAngle; tDeg += incr) {
+      const tick = {
+        id: `${tDeg}`,
+        deg: tDeg,
+        tickStyle: {
+          height: tSize + 10,
+          left: tSize - 16,
+          top: tSize - 15,
+          transform: `rotate(${tDeg}deg)`,
+          transformOrigin: 'top',
+          zIndex: 1,
+        },
+      };
+
+      ticks.push(tick);
+    }
+
+    return ticks.map((tick) => (
+      <div
+        key={tick.id}
+        className={`tick${tick.deg <= deg ? ' active' : ''}`}
+        style={tick.tickStyle}
+        aria-hidden
+      />
+    ));
+  };
+
   const duplicateCopy = (o: { width: number; height: number }) => {
     return JSON.parse(JSON.stringify(o));
   };
@@ -116,7 +165,8 @@ const Knob = ({ degrees, min, max, value, size }: KnobProps) => {
   innerStyle.transform = `rotate(${deg}deg)`;
 
   return (
-    <KnobContainer className="knob" style={knobStyle}>
+    <KnobWithStyles className="knob" style={knobStyle}>
+      <KnobTicks>{renderTicks()}</KnobTicks>
       <KnobOuter
         role="slider"
         aria-valuenow={deg}
@@ -129,7 +179,7 @@ const Knob = ({ degrees, min, max, value, size }: KnobProps) => {
           <KnobGrip className="grip" />
         </KnobInner>
       </KnobOuter>
-    </KnobContainer>
+    </KnobWithStyles>
   );
 };
 

@@ -110,7 +110,7 @@ const KnobContainer = styled.div`
       align-items: center;
       justify-items: center;
 
-      & .knob { display: grid; }
+      & .knob { display: flex; }
     }
   `}
 
