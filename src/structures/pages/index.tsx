@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { graphql } from 'gatsby';
 import styled from 'styled-components';
 import { Knob, SEO } from '../components';
 import { useMediaQuery } from '../hooks';
-import { dk1Cymbal1, dk1Cymbal2, dk1Cymbal3, dk1Hihat1, dk1Hihat2, dk1HihatOpen, dk1LowTom, dk1MidTom, dk1HighTom, dk1Kick1, dk1Kick2, dk1Snare1, dk1Snare2, dk1SideStick1, dk1SideStick2, dk1Ride } from '../../media/sounds/drum-kit-1'; // prettier-ignore
-import { dk2Cymbal1, dk2Cymbal2, dk2Cymbal3, dk2Hihat1, dk2Hihat2, dk2HihatOpen, dk2LowTom, dk2MidTom, dk2HighTom, dk2Kick1, dk2Kick2, dk2Snare1, dk2Snare2, dk2SideStick1, dk2SideStick2, dk2Ride } from '../../media/sounds/drum-kit-2'; // prettier-ignore
 
 /* -------------------------------------------------------------------------- */
 /*                                   styles                                   */
@@ -195,14 +194,43 @@ const DrumPad = styled.button`
 /*                                    types                                   */
 /* -------------------------------------------------------------------------- */
 
-// type DataProps = {};
+type DataProps = {
+  data: {
+    dk1: {
+      nodes: [
+        {
+          id: string;
+          name: string;
+          publicURL: string;
+        },
+      ];
+    };
 
-// type IndexPageProps = DataProps;
+    dk2: {
+      nodes: [
+        {
+          id: string;
+          name: string;
+          publicURL: string;
+        },
+      ];
+    };
+  };
+};
+
+type IndexPageProps = DataProps;
 
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
-const IndexPage = () => {
+const accessKeys = ['q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'z', 'x', 'c', 'v'];
+
+const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
+  const [powerState, setPowerState] = useState(false);
+  const [soundBankState, setSoundBankState] = useState(false); // false = dk1, true = dk2
+  const [drumKitOne, setDrumKitOne] = useState<string[]>([]);
+  const [drumKitTwo, setDrumKitTwo] = useState<string[]>([]);
+
   const hasPointer = useMediaQuery(`(pointer: fine)`);
   const screenIs4k = useMediaQuery(`screen and (min-width: 3500px)`);
   const screenIs1440p = useMediaQuery(`screen and (min-width: 2200px)`);
@@ -211,7 +239,6 @@ const IndexPage = () => {
   const screenIs480p = useMediaQuery(`screen and (min-width: 800px)`);
 
   let knobSize: number;
-
   switch (useMediaQuery(`screen`)) {
     case screenIs4k:
       knobSize = 200;
@@ -232,34 +259,59 @@ const IndexPage = () => {
       knobSize = 80;
   }
 
-  const accessKeys = ['q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'z', 'x', 'c', 'v'];
+  const getAudioForDrumPad = useCallback(
+    (pressedDrumPad: string) => {
+      console.log(pressedDrumPad);
+      accessKeys.forEach((key, index) => {
+        if (key === pressedDrumPad) {
+          if (soundBankState === false) {
+            const audio = new Audio(drumKitOne[index]);
+            audio.play();
+          }
 
-  // plays correct sound depending on which drum pad was pressed
-  const handleButtonClick = (event: React.MouseEvent | KeyboardEvent) => {
-    const mouseEvent = event as React.MouseEvent;
-    const keyboardEvent = event as KeyboardEvent;
-
-    if (keyboardEvent.key) {
-      accessKeys.forEach((key) => {
-        if (key === keyboardEvent.key) {
-          // play sound assigned to accesskey
-
-          const audio = new Audio(dk1Cymbal1);
-          audio.play();
+          if (soundBankState === true) {
+            const audio = new Audio(drumKitTwo[index]);
+            audio.play();
+          }
         }
-      });
-    } else {
-      const target = mouseEvent.target as HTMLButtonElement;
-      const pressedButton = target.id.slice(-1).toLowerCase();
 
-      accessKeys.forEach((key) => {
-        if (key === pressedButton) {
-          // play sound assigned to accesskey
-
-          const audio = new Audio(dk2Cymbal1);
-          audio.play();
-        }
+        return null;
       });
+    },
+    [drumKitOne, drumKitTwo, soundBankState],
+  );
+
+  // handle mouse inputs
+  const handleMouseClick = (event: React.MouseEvent) => {
+    const target = event.target as HTMLButtonElement;
+    const pressedPadButton = target.id.slice(-1).toLowerCase();
+
+    // if power is pressed
+    if (target.id === 'PowerButton') {
+      setPowerState(!powerState);
+    }
+
+    // everything only works if power is on
+    if (powerState === true) {
+      if (target.id === 'BankButton') {
+        setSoundBankState(!soundBankState);
+      } else {
+        getAudioForDrumPad(pressedPadButton);
+
+        // accessKeys.forEach((key, index) => {
+        //   if (key === pressedPadButton) {
+        //     if (soundBankState === false) {
+        //       const audio = new Audio(drumKitOne[index]);
+        //       audio.play();
+        //     }
+
+        //     if (soundBankState === true) {
+        //       const audio = new Audio(drumKitTwo[index]);
+        //       audio.play();
+        //     }
+        //   }
+        // });
+      }
     }
   };
 
@@ -295,7 +347,7 @@ const IndexPage = () => {
         <DrumPad
           key={`drumKey${accessKeys[i].toUpperCase()}`}
           id={`drumKey${accessKeys[i].toUpperCase()}`}
-          onClick={handleButtonClick}
+          onClick={handleMouseClick}
         />,
       );
     }
@@ -303,10 +355,60 @@ const IndexPage = () => {
     return drumPads;
   };
 
+  // setup drumkits
+  useEffect(() => {
+    const drumKitOrder = [ "lowtom", "midtom", "hightom", "cymbal1", "hihat1", "hihat-open", "hihat2", "ride", "sidestick1", "snare1", "snare2", "sidestick2", "cymbal2", "kick1", "kick2", "cymbal3", ]; // prettier-ignore
+    const drumKit1: string[] = [];
+    const drumKit2: string[] = [];
+
+    for (let i = 0; i < drumKitOrder.length; i += 1) {
+      const currentSelector = drumKitOrder[i];
+
+      dk1.nodes.forEach((node, index) => {
+        if (node.name === currentSelector) {
+          drumKit1.push(dk1.nodes[index].publicURL);
+        }
+      });
+
+      dk2.nodes.forEach((node, index) => {
+        if (node.name === currentSelector) {
+          drumKit2.push(dk2.nodes[index].publicURL);
+        }
+      });
+    }
+
+    setDrumKitOne(drumKit1);
+    setDrumKitTwo(drumKit2);
+  }, [dk1.nodes, dk2.nodes]);
+
   // listen for keyboard presses
   useEffect(() => {
-    document.addEventListener('keydown', handleButtonClick);
-  });
+    // handle keyboard inputs
+    const handleKeyboardButton = (event: KeyboardEvent) => {
+      // console.log(event);
+
+      if (event.key === 'p') {
+        setPowerState(!powerState);
+      }
+
+      console.log(powerState);
+
+      // other buttons only work if power is on
+      if (powerState === true) {
+        if (event.key === 'b') {
+          setSoundBankState(!soundBankState);
+        } else {
+          getAudioForDrumPad(event.key);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyboardButton);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyboardButton);
+    };
+  }, [getAudioForDrumPad, powerState, soundBankState]);
 
   return (
     <PageContainer>
@@ -334,11 +436,11 @@ const IndexPage = () => {
             </Display>
             <ButtonsContainer>
               <label htmlFor="PowerButton">
-                <input id="PowerButton" type="button" />
+                <input id="PowerButton" type="button" onClick={handleMouseClick} />
                 Power
               </label>
               <label htmlFor="BankButton">
-                <input id="BankButton" type="button" />
+                <input id="BankButton" type="button" onClick={handleMouseClick} />
                 Bank
               </label>
             </ButtonsContainer>
@@ -360,6 +462,24 @@ const IndexPage = () => {
 
 export default IndexPage;
 
-// export const query = graphql``;
+export const query = graphql`
+  query {
+    dk1: allFile(filter: { relativeDirectory: { eq: "drum-kit-1" }, extension: { eq: "wav" } }) {
+      nodes {
+        id
+        name
+        publicURL
+      }
+    }
+
+    dk2: allFile(filter: { relativeDirectory: { eq: "drum-kit-2" }, extension: { eq: "wav" } }) {
+      nodes {
+        id
+        name
+        publicURL
+      }
+    }
+  }
+`;
 
 export const Head = () => <SEO title="Drum Machine" />;
