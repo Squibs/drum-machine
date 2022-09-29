@@ -41,7 +41,7 @@ const DrumMachineContainer = styled.main`
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.75);
   display: grid;
   grid-template: auto 1fr / 1fr;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding: 10px;
 `;
 
@@ -206,14 +206,30 @@ const IndexPage = () => {
   const hasPointer = useMediaQuery(`(pointer: fine)`);
   const screenIs4k = useMediaQuery(`screen and (min-width: 3500px)`);
   const screenIs1440p = useMediaQuery(`screen and (min-width: 2200px)`);
+  const screenIs1080p = useMediaQuery(`screen and (min-width: 1800px)`);
+  const screenIs720p = useMediaQuery(`screen and (min-width: 1200px)`);
+  const screenIs480p = useMediaQuery(`screen and (min-width: 800px)`);
 
   let knobSize: number;
-  if (screenIs4k) {
-    knobSize = 200;
-  } else if (screenIs1440p) {
-    knobSize = 125;
-  } else {
-    knobSize = 100;
+
+  switch (useMediaQuery(`screen`)) {
+    case screenIs4k:
+      knobSize = 200;
+      break;
+    case screenIs1440p:
+      knobSize = 125;
+      break;
+    case screenIs1080p:
+      knobSize = 100;
+      break;
+    case screenIs720p:
+      knobSize = 50;
+      break;
+    case screenIs480p:
+      knobSize = 25;
+      break;
+    default:
+      knobSize = 80;
   }
 
   const accessKeys = ['q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'z', 'x', 'c', 'v'];
@@ -228,7 +244,7 @@ const IndexPage = () => {
         if (key === keyboardEvent.key) {
           // play sound assigned to accesskey
 
-          const audio = new Audio(dk2Cymbal1);
+          const audio = new Audio(dk1Cymbal1);
           audio.play();
         }
       });
