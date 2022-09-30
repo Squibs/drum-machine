@@ -259,7 +259,37 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
       knobSize = 80;
   }
 
-  const getAudioForDrumPad = useCallback(
+  // setup drumkits
+  useEffect(() => {
+    //                      'q',    'w',      'e',       'r',      'a',       's',      'd',       'f',       'z',       'x',     'c',     'v'
+    const drumKitOrder = [ "tom1", "tom2", "cymbal1", "cymbal2", "hihat", "hihatopen", "ride", "sidestick", "snare1", "snare2", "kick1", "kick2", ]; // prettier-ignore
+    const drumKit1: string[] = [];
+    const drumKit2: string[] = [];
+
+    for (let i = 0; i < drumKitOrder.length; i += 1) {
+      const currentSelector = drumKitOrder[i];
+
+      dk1.nodes.forEach((node, index) => {
+        if (node.name === currentSelector) {
+          drumKit1.push(dk1.nodes[index].publicURL);
+        }
+      });
+
+      dk2.nodes.forEach((node, index) => {
+        if (node.name === currentSelector) {
+          drumKit2.push(dk2.nodes[index].publicURL);
+        }
+      });
+    }
+
+    setDrumKitOne(drumKit1);
+    setDrumKitTwo(drumKit2);
+  }, [dk1.nodes, dk2.nodes]);
+
+  /* ----------------------------- control helpers ---------------------------- */
+
+  // play correct audio for drum pad press
+  const playAudioForDrumPad = useCallback(
     (pressedDrumPad: string) => {
       console.log(pressedDrumPad);
       accessKeys.forEach((key, index) => {
@@ -281,6 +311,8 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
     [drumKitOne, drumKitTwo, soundBankState],
   );
 
+  /* ----------------------------- handle inputs1 ----------------------------- */
+
   // handle mouse inputs
   const handleMouseClick = (event: React.MouseEvent) => {
     const target = event.target as HTMLButtonElement;
@@ -296,24 +328,40 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
       if (target.id === 'BankButton') {
         setSoundBankState(!soundBankState);
       } else {
-        getAudioForDrumPad(pressedPadButton);
-
-        // accessKeys.forEach((key, index) => {
-        //   if (key === pressedPadButton) {
-        //     if (soundBankState === false) {
-        //       const audio = new Audio(drumKitOne[index]);
-        //       audio.play();
-        //     }
-
-        //     if (soundBankState === true) {
-        //       const audio = new Audio(drumKitTwo[index]);
-        //       audio.play();
-        //     }
-        //   }
-        // });
+        playAudioForDrumPad(pressedPadButton);
       }
     }
   };
+
+  // handle keyboard inputs
+  useEffect(() => {
+    const handleKeyboardButton = (event: KeyboardEvent) => {
+      // console.log(event);
+
+      if (event.key === 'p') {
+        setPowerState(!powerState);
+      }
+
+      console.log(powerState);
+
+      // other buttons only work if power is on
+      if (powerState === true) {
+        if (event.key === 'b') {
+          setSoundBankState(!soundBankState);
+        } else {
+          playAudioForDrumPad(event.key);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyboardButton);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyboardButton);
+    };
+  }, [playAudioForDrumPad, powerState, soundBankState]);
+
+  /* ----------------------------- render helpers ----------------------------- */
 
   // helps render out multiple knobs or sliders depending on screen size (determined in 'render()')
   const knobRenderHelper = (type: string, id: string, text: string) => {
@@ -354,61 +402,6 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
 
     return drumPads;
   };
-
-  // setup drumkits
-  useEffect(() => {
-    const drumKitOrder = [ "tom1", "tom2", "cymbal1", "cymbal2", "hihat", "hihatopen", "ride", "sidestick", "snare1", "snare2", "kick1", "kick2", ]; // prettier-ignore
-    const drumKit1: string[] = [];
-    const drumKit2: string[] = [];
-
-    for (let i = 0; i < drumKitOrder.length; i += 1) {
-      const currentSelector = drumKitOrder[i];
-
-      dk1.nodes.forEach((node, index) => {
-        if (node.name === currentSelector) {
-          drumKit1.push(dk1.nodes[index].publicURL);
-        }
-      });
-
-      dk2.nodes.forEach((node, index) => {
-        if (node.name === currentSelector) {
-          drumKit2.push(dk2.nodes[index].publicURL);
-        }
-      });
-    }
-
-    setDrumKitOne(drumKit1);
-    setDrumKitTwo(drumKit2);
-  }, [dk1.nodes, dk2.nodes]);
-
-  // listen for keyboard presses
-  useEffect(() => {
-    // handle keyboard inputs
-    const handleKeyboardButton = (event: KeyboardEvent) => {
-      // console.log(event);
-
-      if (event.key === 'p') {
-        setPowerState(!powerState);
-      }
-
-      console.log(powerState);
-
-      // other buttons only work if power is on
-      if (powerState === true) {
-        if (event.key === 'b') {
-          setSoundBankState(!soundBankState);
-        } else {
-          getAudioForDrumPad(event.key);
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyboardButton);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyboardButton);
-    };
-  }, [getAudioForDrumPad, powerState, soundBankState]);
 
   return (
     <PageContainer>
