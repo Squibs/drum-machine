@@ -357,7 +357,7 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
 
   // setup drumkits
   useEffect(() => {
-    const drumKitOrder = [ "lowtom", "midtom", "hightom", "cymbal1", "hihat1", "hihat-open", "hihat2", "ride", "sidestick1", "snare1", "snare2", "sidestick2", "cymbal2", "kick1", "kick2", "cymbal3", ]; // prettier-ignore
+    const drumKitOrder = [ "tom1", "tom2", "cymbal1", "cymbal2", "hihat", "hihatopen", "ride", "sidestick", "snare1", "snare2", "kick1", "kick2", ]; // prettier-ignore
     const drumKit1: string[] = [];
     const drumKit2: string[] = [];
 

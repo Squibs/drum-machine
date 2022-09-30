@@ -20,8 +20,7 @@ drum kit 2 is Nintendo NES
 
 both from KB6
 
-| Low Tom   | Mid Tom    | High Tom | Cymbal 1  |
-| --------- | ---------- | -------- | --------- |
-| Hihat     | Open Hihat | Hihat    | Ride      |
-| Sidestick | Snare      | Snare    | Sidestick |
-| cymbal 2  | Kick       | Kick     | Cymbal 3  |
+| Tom 1   | Tom 2      | Cymbal 1 | Cymbal 2  |
+| ------- | ---------- | -------- | --------- |
+| Hihat   | Open Hihat | Ride     | Sidestick |
+| Snare 1 | Snare 2    | Kick 1   | Kick 2    |
