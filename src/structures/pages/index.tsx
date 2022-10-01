@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { graphql } from 'gatsby';
 import styled from 'styled-components';
 import { Knob, SEO } from '../components';
-import { useMediaQuery } from '../hooks';
+import { useDetectiOS, useMediaQuery } from '../hooks';
 
 /* -------------------------------------------------------------------------- */
 /*                                   styles                                   */
@@ -26,6 +26,25 @@ const PageContainer = styled.div`
   & footer a {
     text-decoration: none;
     color: #c0392b;
+  }
+`;
+
+const IOSWarning = styled.div`
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.85);
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  grid-template: 2fr 1fr / 1fr;
+  /* justify-content: baseline; */
+
+  & button {
+    margin-top: 15px;
+    width: 50%;
+    align-self: start;
   }
 `;
 
@@ -291,11 +310,11 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
   // play correct audio for drum pad press
   const playAudioForDrumPad = useCallback(
     (pressedDrumPad: string) => {
-      console.log(pressedDrumPad);
       accessKeys.forEach((key, index) => {
         if (key === pressedDrumPad) {
           if (soundBankState === false) {
             const audio = new Audio(drumKitOne[index]);
+            audio.load();
             audio.play();
           }
 
@@ -311,7 +330,27 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
     [drumKitOne, drumKitTwo, soundBankState],
   );
 
-  /* ----------------------------- handle inputs1 ----------------------------- */
+  const buttonActivated = (pressedDrumPad: string) => {
+    console.log(pressedDrumPad);
+
+    const el = document.getElementById(`drumKey${pressedDrumPad.toUpperCase()}`);
+    el?.classList.add('activated');
+
+    const delay = (ms: number) => {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      });
+    };
+
+    const removeActivated = async () => {
+      await delay(200);
+      el?.classList.remove('activated');
+    };
+
+    removeActivated();
+  };
+
+  /* ----------------------------- handle inputs ------------------------------ */
 
   // handle mouse inputs
   const handleMouseClick = (event: React.MouseEvent) => {
@@ -329,6 +368,7 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
         setSoundBankState(!soundBankState);
       } else {
         playAudioForDrumPad(pressedPadButton);
+        buttonActivated(pressedPadButton);
       }
     }
   };
@@ -336,13 +376,9 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
   // handle keyboard inputs
   useEffect(() => {
     const handleKeyboardButton = (event: KeyboardEvent) => {
-      // console.log(event);
-
       if (event.key === 'p') {
         setPowerState(!powerState);
       }
-
-      console.log(powerState);
 
       // other buttons only work if power is on
       if (powerState === true) {
@@ -350,6 +386,7 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
           setSoundBankState(!soundBankState);
         } else {
           playAudioForDrumPad(event.key);
+          buttonActivated(event.key);
         }
       }
     };
@@ -395,7 +432,7 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
         <DrumPad
           key={`drumKey${accessKeys[i].toUpperCase()}`}
           id={`drumKey${accessKeys[i].toUpperCase()}`}
-          onClick={handleMouseClick}
+          onPointerDown={handleMouseClick}
         />,
       );
     }
@@ -405,6 +442,32 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
 
   return (
     <PageContainer>
+      {useDetectiOS() ? (
+        <IOSWarning>
+          {/* eslint-disable react/jsx-one-expression-per-line */}
+          {/* prettier-ignore */}
+          <p>
+              Unfortunately it seems iOS is taking over the place where Internet Explorer used
+              to stand, and is now the source of random issues in web development.
+              <br /><br />
+              I tried multiple solutions to get audio to work correctly on my iOS device, and
+              was unsuccessful.
+              <br /><br />
+              So if you are on an iOS device this
+              <i> Drum Machine </i><b>may not work correctly</b>. Sorry for the inconvenience, I tried.
+            </p>
+          <button
+            type="button"
+            onClick={(event: React.MouseEvent) => {
+              const target = event.target as HTMLButtonElement;
+              target.parentElement?.remove();
+            }}
+          >
+            Close
+          </button>
+          {/* eslint-enable react/jsx-one-expression-per-line */}
+        </IOSWarning>
+      ) : null}
       <DrumMachineContainer>
         <h1>Drum Machine</h1>
         <DrumMachineControlsContainer>
@@ -429,7 +492,7 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
             </Display>
             <ButtonsContainer>
               <label htmlFor="PowerButton">
-                <input id="PowerButton" type="button" onClick={handleMouseClick} />
+                <input id="PowerButton" type="button" onPointerDown={handleMouseClick} />
                 Power
               </label>
               <label htmlFor="BankButton">
