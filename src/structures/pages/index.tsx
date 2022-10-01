@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { graphql } from 'gatsby';
 import styled from 'styled-components';
+import { Howl } from 'howler';
 import { Knob, SEO } from '../components';
 import { useDetectiOS, useMediaQuery } from '../hooks';
 
@@ -38,13 +39,17 @@ const IOSWarning = styled.div`
   display: grid;
   align-items: end;
   justify-items: center;
-  grid-template: 2fr 1fr / 1fr;
-  /* justify-content: baseline; */
+  grid-template: 1fr 1fr / 1fr;
 
   & button {
     margin-top: 15px;
-    width: 50%;
     align-self: start;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    font-size: 28px;
+    color: ${({ theme }) => theme.colors.accentTwo};
+    text-underline-offset: 3px;
   }
 `;
 
@@ -60,6 +65,7 @@ const DrumMachineContainer = styled.main`
   display: grid;
   grid-template: auto 1fr / 1fr;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 10px;
 `;
 
@@ -215,21 +221,33 @@ const DrumPad = styled.button`
 
 type DataProps = {
   data: {
-    dk1: {
+    hDk1Src1: {
       nodes: [
         {
-          id: string;
-          name: string;
           publicURL: string;
         },
       ];
     };
 
-    dk2: {
+    hDk1Src2: {
       nodes: [
         {
-          id: string;
-          name: string;
+          publicURL: string;
+        },
+      ];
+    };
+
+    hDk2Src1: {
+      nodes: [
+        {
+          publicURL: string;
+        },
+      ];
+    };
+
+    hDk2Src2: {
+      nodes: [
+        {
           publicURL: string;
         },
       ];
@@ -242,13 +260,31 @@ type IndexPageProps = DataProps;
 /* -------------------------------------------------------------------------- */
 /*                                  component                                 */
 /* -------------------------------------------------------------------------- */
-const accessKeys = ['q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'z', 'x', 'c', 'v'];
+const accessKeys = [
+  { button: 'q', audio: 'tom1' },
+  { button: 'w', audio: 'tom2' },
+  { button: 'e', audio: 'cymbal1' },
+  { button: 'r', audio: 'cymbal2' },
+  { button: 'a', audio: 'hihat' },
+  { button: 's', audio: 'hihatopen' },
+  { button: 'd', audio: 'ride' },
+  { button: 'f', audio: 'sidestick' },
+  { button: 'z', audio: 'snare1' },
+  { button: 'x', audio: 'snare2' },
+  { button: 'c', audio: 'kick1' },
+  { button: 'v', audio: 'kick2' },
+];
 
-const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
+const IndexPage = ({ data }: IndexPageProps) => {
+  const hDk1Src1 = data.hDk1Src1.nodes[0].publicURL;
+  const hDk1Src2 = data.hDk1Src2.nodes[0].publicURL;
+  const hDk2Src1 = data.hDk2Src1.nodes[0].publicURL;
+  const hDk2Src2 = data.hDk2Src2.nodes[0].publicURL;
+
   const [powerState, setPowerState] = useState(false);
   const [soundBankState, setSoundBankState] = useState(false); // false = dk1, true = dk2
-  const [drumKitOne, setDrumKitOne] = useState<string[]>([]);
-  const [drumKitTwo, setDrumKitTwo] = useState<string[]>([]);
+  const [drumKitOne, setDrumKitOne] = useState<Howl>();
+  const [drumKitTwo, setDrumKitTwo] = useState<Howl>();
 
   const hasPointer = useMediaQuery(`(pointer: fine)`);
   const screenIs4k = useMediaQuery(`screen and (min-width: 3500px)`);
@@ -278,49 +314,25 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
       knobSize = 80;
   }
 
-  // setup drumkits
-  useEffect(() => {
-    //                      'q',    'w',      'e',       'r',      'a',       's',      'd',       'f',       'z',       'x',     'c',     'v'
-    const drumKitOrder = [ "tom1", "tom2", "cymbal1", "cymbal2", "hihat", "hihatopen", "ride", "sidestick", "snare1", "snare2", "kick1", "kick2", ]; // prettier-ignore
-    const drumKit1: string[] = [];
-    const drumKit2: string[] = [];
-
-    for (let i = 0; i < drumKitOrder.length; i += 1) {
-      const currentSelector = drumKitOrder[i];
-
-      dk1.nodes.forEach((node, index) => {
-        if (node.name === currentSelector) {
-          drumKit1.push(dk1.nodes[index].publicURL);
-        }
-      });
-
-      dk2.nodes.forEach((node, index) => {
-        if (node.name === currentSelector) {
-          drumKit2.push(dk2.nodes[index].publicURL);
-        }
-      });
-    }
-
-    setDrumKitOne(drumKit1);
-    setDrumKitTwo(drumKit2);
-  }, [dk1.nodes, dk2.nodes]);
-
   /* ----------------------------- control helpers ---------------------------- */
 
   // play correct audio for drum pad press
   const playAudioForDrumPad = useCallback(
     (pressedDrumPad: string) => {
       accessKeys.forEach((key, index) => {
-        if (key === pressedDrumPad) {
+        if (key.button === pressedDrumPad) {
+          // drum kit 1 sounds
           if (soundBankState === false) {
-            const audio = new Audio(drumKitOne[index]);
-            audio.load();
-            audio.play();
+            if (drumKitOne) {
+              drumKitOne.play(`${accessKeys[index].audio}`);
+            }
           }
 
+          // drum kit 2 sounds
           if (soundBankState === true) {
-            const audio = new Audio(drumKitTwo[index]);
-            audio.play();
+            if (drumKitTwo) {
+              drumKitTwo.play(`${accessKeys[index].audio}`);
+            }
           }
         }
 
@@ -330,9 +342,8 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
     [drumKitOne, drumKitTwo, soundBankState],
   );
 
+  // change drum pad button color when pressed
   const buttonActivated = (pressedDrumPad: string) => {
-    console.log(pressedDrumPad);
-
     const el = document.getElementById(`drumKey${pressedDrumPad.toUpperCase()}`);
     el?.classList.add('activated');
 
@@ -350,6 +361,48 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
     removeActivated();
   };
 
+  // setup drumkits. Has to be after a button press otherwise iOS gets real mad
+  const setupDrumKits = useCallback(() => {
+    const drumSamples1 = new Howl({
+      src: [hDk1Src1, hDk1Src2],
+      sprite: {
+        cymbal1: [0, 786.5079365079365],
+        cymbal2: [2000, 121.08843537414948],
+        hihat: [4000, 89.79591836734713],
+        hihatopen: [6000, 327.52834467120186],
+        kick1: [8000, 102.13151927437636],
+        kick2: [10000, 118.2086167800449],
+        ride: [12000, 787.5963718820866],
+        sidestick: [14000, 106.8934240362811],
+        snare1: [16000, 162.2222222222227],
+        snare2: [18000, 317.7324263038557],
+        tom1: [20000, 284.37641723355966],
+        tom2: [22000, 266.0544217687075],
+      },
+    });
+
+    const drumSamples2 = new Howl({
+      src: [hDk2Src1, hDk2Src2],
+      sprite: {
+        cymbal1: [0, 150.22675736961452],
+        cymbal2: [2000, 133.5827664399094],
+        hihat: [4000, 50.20408163265344],
+        hihatopen: [6000, 150.45351473922875],
+        kick1: [8000, 154.30839002267584],
+        kick2: [10000, 150.27210884353792],
+        ride: [12000, 316.89342403628194],
+        sidestick: [14000, 17.120181405894996],
+        snare1: [16000, 103.94557823129347],
+        snare2: [18000, 146.12244897959314],
+        tom1: [20000, 83.53741496598488],
+        tom2: [22000, 162.69841269841123],
+      },
+    });
+
+    setDrumKitOne(drumSamples1);
+    setDrumKitTwo(drumSamples2);
+  }, [hDk1Src1, hDk1Src2, hDk2Src1, hDk2Src2]);
+
   /* ----------------------------- handle inputs ------------------------------ */
 
   // handle mouse inputs
@@ -360,6 +413,10 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
     // if power is pressed
     if (target.id === 'PowerButton') {
       setPowerState(!powerState);
+
+      if (!drumKitOne && !drumKitTwo) {
+        setupDrumKits();
+      }
     }
 
     // everything only works if power is on
@@ -376,8 +433,13 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
   // handle keyboard inputs
   useEffect(() => {
     const handleKeyboardButton = (event: KeyboardEvent) => {
+      // if power is pressed
       if (event.key === 'p') {
         setPowerState(!powerState);
+
+        if (!drumKitOne && !drumKitTwo) {
+          setupDrumKits();
+        }
       }
 
       // other buttons only work if power is on
@@ -396,7 +458,7 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
     return () => {
       document.removeEventListener('keydown', handleKeyboardButton);
     };
-  }, [playAudioForDrumPad, powerState, soundBankState]);
+  }, [drumKitOne, drumKitTwo, playAudioForDrumPad, powerState, setupDrumKits, soundBankState]);
 
   /* ----------------------------- render helpers ----------------------------- */
 
@@ -430,8 +492,8 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
     for (let i = 0; i < amount; i += 1) {
       drumPads.push(
         <DrumPad
-          key={`drumKey${accessKeys[i].toUpperCase()}`}
-          id={`drumKey${accessKeys[i].toUpperCase()}`}
+          key={`drumKey${accessKeys[i].button.toUpperCase()}`}
+          id={`drumKey${accessKeys[i].button.toUpperCase()}`}
           onPointerDown={handleMouseClick}
         />,
       );
@@ -444,18 +506,9 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
     <PageContainer>
       {useDetectiOS() ? (
         <IOSWarning>
-          {/* eslint-disable react/jsx-one-expression-per-line */}
-          {/* prettier-ignore */}
           <p>
-              Unfortunately it seems iOS is taking over the place where Internet Explorer used
-              to stand, and is now the source of random issues in web development.
-              <br /><br />
-              I tried multiple solutions to get audio to work correctly on my iOS device, and
-              was unsuccessful.
-              <br /><br />
-              So if you are on an iOS device this
-              <i> Drum Machine </i><b>may not work correctly</b>. Sorry for the inconvenience, I tried.
-            </p>
+            Make sure your device, mainly iOS users, is not on silent mode. Thank you for visiting!
+          </p>
           <button
             type="button"
             onClick={(event: React.MouseEvent) => {
@@ -463,9 +516,8 @@ const IndexPage = ({ data: { dk1, dk2 } }: IndexPageProps) => {
               target.parentElement?.remove();
             }}
           >
-            Close
+            Close This
           </button>
-          {/* eslint-enable react/jsx-one-expression-per-line */}
         </IOSWarning>
       ) : null}
       <DrumMachineContainer>
@@ -520,18 +572,50 @@ export default IndexPage;
 
 export const query = graphql`
   query {
-    dk1: allFile(filter: { relativeDirectory: { eq: "drum-kit-1" }, extension: { eq: "wav" } }) {
+    hDk1Src1: allFile(
+      filter: {
+        relativeDirectory: { eq: "drum-kit-1" }
+        name: { eq: "samples" }
+        ext: { eq: ".webm" }
+      }
+    ) {
       nodes {
-        id
-        name
         publicURL
       }
     }
 
-    dk2: allFile(filter: { relativeDirectory: { eq: "drum-kit-2" }, extension: { eq: "wav" } }) {
+    hDk1Src2: allFile(
+      filter: {
+        relativeDirectory: { eq: "drum-kit-1" }
+        name: { eq: "samples" }
+        ext: { eq: ".wav" }
+      }
+    ) {
       nodes {
-        id
-        name
+        publicURL
+      }
+    }
+
+    hDk2Src1: allFile(
+      filter: {
+        relativeDirectory: { eq: "drum-kit-2" }
+        name: { eq: "samples" }
+        ext: { eq: ".webm" }
+      }
+    ) {
+      nodes {
+        publicURL
+      }
+    }
+
+    hDk2Src2: allFile(
+      filter: {
+        relativeDirectory: { eq: "drum-kit-2" }
+        name: { eq: "samples" }
+        ext: { eq: ".wav" }
+      }
+    ) {
+      nodes {
         publicURL
       }
     }

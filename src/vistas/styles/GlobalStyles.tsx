@@ -9,9 +9,9 @@ const GlobalStyle = createGlobalStyle`
     height: 100%;
     min-width: 280px;
     position: relative;
-    touch-action: manipulation; // iOS double tap zoom fix
+    touch-action: none; // iOS double tap zoom fix
   }
-  input[type="button"], button{ touch-action: manipulation; } // iOS double tap zoom fix
+  input[type="button"], button{ touch-action: none; } // iOS double tap zoom fix
 
   /* box sizing */
   html {

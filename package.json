@@ -27,6 +27,7 @@
     "gatsby-plugin-styled-components": "^5.23.0",
     "gatsby-source-filesystem": "^4.23.0",
     "gatsby-transformer-sharp": "^4.23.1",
+    "howler": "^2.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.4",
@@ -38,6 +39,7 @@
     "@squibs/eslint-config-typescript-react": "^2.0.3",
     "@squibs/prettier-config": "^1.0.3",
     "@squibs/ts-config": "^1.0.1",
+    "@types/howler": "^2.2.7",
     "@types/styled-components": "^5.1.26"
   },
   "prettier": "@squibs/prettier-config",
