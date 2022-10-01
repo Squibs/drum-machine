@@ -22,11 +22,15 @@ const GlobalStyle = createGlobalStyle`
   }
 
   /* activated drum pad color / make button look pressed */
-  .activated {
-    background-color: red;
+  .activatedThemeOne {
+    background-color: #23ebdf !important;
   }
-
-
+  .activatedThemeTwo {
+    background-color:  #ef2af3 !important;
+  }
+  .activated {
+    background-color: red !important;
+  }
 `;
 
 /* -------------------------------- component ------------------------------- */

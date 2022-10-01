@@ -1,9 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { graphql } from 'gatsby';
 import styled from 'styled-components';
 import { Howl } from 'howler';
 import { Knob, SEO } from '../components';
 import { useDetectiOS, useMediaQuery } from '../hooks';
+
+// Big thanks to https://andrcohen847.medium.com/designing-an-interactive-simple-sound-board-with-howler-js-and-react-91d00b899c8c
+// Howler was the key to getting iOS audio working.
 
 /* -------------------------------------------------------------------------- */
 /*                                   styles                                   */
@@ -174,6 +177,14 @@ const ButtonsContainer = styled.div`
     & input {
       height: 35px;
       width: 100%;
+      background-color: #f2f2f2;
+      border: none;
+      border-radius: 15px;
+
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
     }
   }
 
@@ -205,9 +216,10 @@ const DrumPadContainer = styled.div`
 `;
 
 const DrumPad = styled.button`
-  border-radius: 15px;
   padding: 0;
+  background-color: #f2f2f2;
   border: none;
+  border-radius: 15px;
 
   &:focus {
     outline: none;
@@ -285,6 +297,11 @@ const IndexPage = ({ data }: IndexPageProps) => {
   const [soundBankState, setSoundBankState] = useState(false); // false = dk1, true = dk2
   const [drumKitOne, setDrumKitOne] = useState<Howl>();
   const [drumKitTwo, setDrumKitTwo] = useState<Howl>();
+
+  const powerButtonRef = useRef<HTMLInputElement>(null);
+  const bankButtonRef = useRef<HTMLInputElement>(null);
+  const drumPadContainerRef = useRef<HTMLDivElement>(null);
+  const displayRef = useRef<HTMLDivElement>(null);
 
   const hasPointer = useMediaQuery(`(pointer: fine)`);
   const screenIs4k = useMediaQuery(`screen and (min-width: 3500px)`);
@@ -402,6 +419,68 @@ const IndexPage = ({ data }: IndexPageProps) => {
     setDrumKitOne(drumSamples1);
     setDrumKitTwo(drumSamples2);
   }, [hDk1Src1, hDk1Src2, hDk2Src1, hDk2Src2]);
+
+  // handle drum machine button glows
+  useEffect(() => {
+    if (
+      powerButtonRef.current &&
+      bankButtonRef.current &&
+      drumPadContainerRef.current &&
+      displayRef.current
+    ) {
+      const powerButton = powerButtonRef.current.classList;
+      const bankButton = bankButtonRef.current.classList;
+      const drumPadChildren = drumPadContainerRef.current.childNodes;
+      const display = displayRef.current.firstChild as HTMLSpanElement;
+
+      if (powerState) {
+        // Bank A
+        if (!soundBankState) {
+          powerButton.remove('activatedThemeTwo');
+          bankButton.remove('activatedThemeTwo');
+          display.classList.remove('activatedThemeTwo');
+          powerButton.add('activatedThemeOne');
+          bankButton.add('activatedThemeOne');
+          display.classList.add('activatedThemeOne');
+
+          drumPadChildren.forEach((child) => {
+            const c = child as HTMLButtonElement;
+            c.classList.remove('activatedThemeTwo');
+            c.classList.add('activatedThemeOne');
+          });
+        }
+
+        // Bank B
+        if (soundBankState) {
+          powerButton.remove('activatedThemeOne');
+          bankButton.remove('activatedThemeOne');
+          display.classList.remove('activatedThemeOne');
+          powerButton.add('activatedThemeTwo');
+          bankButton.add('activatedThemeTwo');
+          display.classList.add('activatedThemeTwo');
+
+          drumPadChildren.forEach((child) => {
+            const c = child as HTMLButtonElement;
+            c.classList.remove('activatedThemeOne');
+            c.classList.add('activatedThemeTwo');
+          });
+        }
+      }
+
+      // if power is off remove background colors
+      if (!powerState) {
+        powerButton.remove('activatedThemeOne', 'activatedThemeTwo');
+        bankButton.remove('activatedThemeOne', 'activatedThemeTwo');
+        display.classList.remove('activatedThemeOne', 'activatedThemeTwo');
+        display.textContent = `\u00a0`; // non-breaking space character to hold screen size
+
+        drumPadChildren.forEach((child) => {
+          const c = child as HTMLButtonElement;
+          c.classList.remove('activatedThemeOne', 'activatedThemeTwo');
+        });
+      }
+    }
+  }, [powerState, soundBankState]);
 
   /* ----------------------------- handle inputs ------------------------------ */
 
@@ -539,21 +618,31 @@ const IndexPage = ({ data }: IndexPageProps) => {
                 </>
               )}
             </KnobContainer>
-            <Display>
+            <Display ref={displayRef}>
               <span>I&apos;m a screen.</span>
             </Display>
             <ButtonsContainer>
               <label htmlFor="PowerButton">
-                <input id="PowerButton" type="button" onPointerDown={handleMouseClick} />
+                <input
+                  id="PowerButton"
+                  type="button"
+                  ref={powerButtonRef}
+                  onPointerDown={handleMouseClick}
+                />
                 Power
               </label>
               <label htmlFor="BankButton">
-                <input id="BankButton" type="button" onClick={handleMouseClick} />
+                <input
+                  id="BankButton"
+                  type="button"
+                  ref={bankButtonRef}
+                  onClick={handleMouseClick}
+                />
                 Bank
               </label>
             </ButtonsContainer>
           </DrumMachineLogicContainer>
-          <DrumPadContainer>{renderDrumPads(12)}</DrumPadContainer>
+          <DrumPadContainer ref={drumPadContainerRef}>{renderDrumPads(12)}</DrumPadContainer>
         </DrumMachineControlsContainer>
       </DrumMachineContainer>
       <footer>
