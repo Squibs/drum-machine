@@ -170,18 +170,20 @@ const ButtonsContainer = styled.div`
   grid-gap: 10%;
   position: relative;
 
-  & span {
-    position: absolute;
-    color: black;
-    left: 0;
-    right: 0;
-  }
-
   /* button container */
   & label {
     display: grid;
     align-items: center;
     position: relative;
+
+    // button text
+    & span {
+      position: absolute;
+      color: black;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+    }
 
     /* power / bank buttons */
     & input {
@@ -203,15 +205,15 @@ const ButtonsContainer = styled.div`
       align-self: start;
       margin: auto 0;
 
+      & span {
+      position: unset;
+      color: white;
+    }
+
       & input {
         height: 75px;
         margin-bottom: 10px;
       }
-    }
-
-    & span {
-      position: initial;
-      color: white;
     }
   `}
 `;
