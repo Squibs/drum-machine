@@ -358,7 +358,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
   const [soundBankState, setSoundBankState] = useState(false); // false = dk1, true = dk2
   const [drumKitOne, setDrumKitOne] = useState<Howl>();
   const [drumKitTwo, setDrumKitTwo] = useState<Howl>();
-  const [displayMessage, setDisplayMessage] = useState('');
+  const [displayMessage, setDisplayMessage] = useState(`\u00a0`);
 
   const powerButtonRef = useRef<HTMLInputElement>(null);
   const bankButtonRef = useRef<HTMLInputElement>(null);
@@ -547,6 +547,36 @@ const IndexPage = ({ data }: IndexPageProps) => {
     }
   }, [powerState, soundBankState]);
 
+  // update display message
+  const updateDisplay = useCallback(
+    (pressedDrumPad: string) => {
+      let message = displayMessage;
+      const drumPadKeys: string[] = [];
+      accessKeys.forEach((key) => drumPadKeys.push(key.keyTrigger));
+
+      if (pressedDrumPad === 'b') {
+        message = soundBankState ? 'BANK: Korg MR-16 Kit' : 'BANK: Nintendo NES Kit';
+        setDisplayMessage(message);
+      } else if (drumPadKeys.some((key) => key === pressedDrumPad)) {
+        const audioThatPlayed = `${
+          accessKeys.find((key) => key.keyTrigger === pressedDrumPad)?.audio
+        }`;
+        message = `${audioThatPlayed.charAt(0).toUpperCase()}${audioThatPlayed.slice(1)}`;
+        setDisplayMessage(message);
+      }
+    },
+    [displayMessage, soundBankState],
+  );
+
+  // listens for updates to display
+  useEffect(() => {
+    if (displayRef.current) {
+      const display = displayRef.current.firstChild as HTMLSpanElement;
+
+      display.textContent = displayMessage;
+    }
+  }, [displayMessage]);
+
   /* ----------------------------- handle inputs ------------------------------ */
 
   // for freeCodeCamp test suite. I'm handling sound in a way that is fairly different
@@ -580,10 +610,12 @@ const IndexPage = ({ data }: IndexPageProps) => {
       // for sound bank switching
       if (target.id === 'BankButton') {
         setSoundBankState(!soundBankState);
+        updateDisplay('b');
       } else {
         // for any other button
         playAudioForDrumPad(pressedPadButton);
         buttonActivated(pressedPadButton);
+        updateDisplay(pressedPadButton);
       }
     }
   };
@@ -606,6 +638,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
         // for sound bank switching
         if (event.key === 'b' || event.keyCode === 66) {
           setSoundBankState(!soundBankState);
+          updateDisplay(event.key);
         } else {
           // for freeCodeCamp test suite
           const fakeDrumAudioSrc = document.getElementById(
@@ -619,6 +652,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
           // for any other button
           playAudioForDrumPad(event.key);
           buttonActivated(event.key);
+          updateDisplay(event.key);
         }
       }
     };
@@ -628,7 +662,15 @@ const IndexPage = ({ data }: IndexPageProps) => {
     return () => {
       document.removeEventListener('keydown', handleKeyboardButton);
     };
-  }, [drumKitOne, drumKitTwo, playAudioForDrumPad, powerState, setupDrumKits, soundBankState]);
+  }, [
+    drumKitOne,
+    drumKitTwo,
+    playAudioForDrumPad,
+    powerState,
+    setupDrumKits,
+    soundBankState,
+    updateDisplay,
+  ]);
 
   /* ----------------------------- render helpers ----------------------------- */
 
@@ -669,9 +711,6 @@ const IndexPage = ({ data }: IndexPageProps) => {
           className={`${i + 1 !== 0 && (i + 1) % 4 === 0 ? '' : 'drum-pad'}`}
         >
           <span>{`${accessKeys[i].keyTrigger.toUpperCase()}`}</span>
-          <span>
-            {`${accessKeys[i].audio.charAt(0).toUpperCase()}${accessKeys[i].audio.slice(1)}`}
-          </span>
           <audio
             className="clip"
             id={`${accessKeys[i].keyTrigger.toUpperCase()}`}
@@ -685,6 +724,8 @@ const IndexPage = ({ data }: IndexPageProps) => {
 
     return drumPads;
   };
+
+  /* --------------------------------- render --------------------------------- */
 
   return (
     <PageContainer>
@@ -759,7 +800,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
 };
 
 /* -------------------------------------------------------------------------- */
-/*                      default props / queries / exports                     */
+/*                      default props | queries | exports                     */
 /* -------------------------------------------------------------------------- */
 
 export default IndexPage;
