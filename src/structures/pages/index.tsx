@@ -43,6 +43,7 @@ const IOSWarning = styled.div`
   align-items: end;
   justify-items: center;
   grid-template: 1fr 1fr / 1fr;
+  z-index: 2;
 
   & button {
     margin-top: 15px;
@@ -167,11 +168,20 @@ const ButtonsContainer = styled.div`
   display: grid;
   grid-template: 1fr / 1fr 1fr;
   grid-gap: 10%;
+  position: relative;
+
+  & span {
+    position: absolute;
+    color: black;
+    left: 0;
+    right: 0;
+  }
 
   /* button container */
   & label {
     display: grid;
     align-items: center;
+    position: relative;
 
     /* power / bank buttons */
     & input {
@@ -198,6 +208,11 @@ const ButtonsContainer = styled.div`
         margin-bottom: 10px;
       }
     }
+
+    & span {
+      position: initial;
+      color: white;
+    }
   `}
 `;
 
@@ -220,11 +235,47 @@ const DrumPad = styled.button`
   background-color: #f2f2f2;
   border: none;
   border-radius: 15px;
+  display: grid;
+  grid-template: repeat(3, 1fr) / 1fr;
+  align-items: end;
+  justify-items: start;
+  padding: 8%;
+
+  & span {
+    pointer-events: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.55em;
+  }
+
+  & span:first-of-type {
+    justify-self: start;
+    grid-row-start: 3;
+    grid-row-end: 4;
+    opacity: 0;
+  }
+
+  & span:last-of-type {
+    justify-self: center;
+    align-self: center;
+    grid-row-start: 2;
+    grid-row-end: 3;
+  }
 
   &:focus {
     outline: none;
     box-shadow: none;
   }
+
+  ${({ theme }) => theme.breakpoints.for2SlightlyBiggerPhoneUp()`
+    & span {
+      font-size: initial;
+
+      &:first-of-type {
+        opacity: 100;
+      }
+    }
+  `}
 `;
 
 /* -------------------------------------------------------------------------- */
@@ -500,8 +551,11 @@ const IndexPage = ({ data }: IndexPageProps) => {
   // and this is here to play silent audio to pass the tests (i'm using howlerjs)
   const handleFakeNoise = (event: React.MouseEvent) => {
     const target = event.target as HTMLButtonElement;
-    const fakeDrumAudioSrc = target.firstElementChild as HTMLAudioElement;
-    fakeDrumAudioSrc.play();
+    const fakeDrumAudioSrc = target.lastElementChild as HTMLAudioElement;
+
+    if (fakeDrumAudioSrc) {
+      fakeDrumAudioSrc.play();
+    }
   };
 
   // handle mouse inputs
@@ -554,7 +608,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
           // for freeCodeCamp test suite
           const fakeDrumAudioSrc = document.getElementById(
             `${accessKeys.find((k) => k.keyCode === event.keyCode)?.audio}`,
-          )?.firstElementChild as HTMLAudioElement;
+          )?.lastElementChild as HTMLAudioElement;
 
           if (fakeDrumAudioSrc) {
             fakeDrumAudioSrc.play();
@@ -612,7 +666,10 @@ const IndexPage = ({ data }: IndexPageProps) => {
           onClick={handleFakeNoise}
           className={`${i + 1 !== 0 && (i + 1) % 4 === 0 ? '' : 'drum-pad'}`}
         >
-          {`${accessKeys[i].keyTrigger.toUpperCase()}`}
+          <span>{`${accessKeys[i].keyTrigger.toUpperCase()}`}</span>
+          <span>
+            {`${accessKeys[i].audio.charAt(0).toUpperCase()}${accessKeys[i].audio.slice(1)}`}
+          </span>
           <audio
             className="clip"
             id={`${accessKeys[i].keyTrigger.toUpperCase()}`}
@@ -675,7 +732,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
                   ref={powerButtonRef}
                   onPointerDown={handleMouseClick}
                 />
-                Power
+                <span>Power</span>
               </label>
               <label htmlFor="BankButton">
                 <input
@@ -684,7 +741,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
                   ref={bankButtonRef}
                   onPointerDown={handleMouseClick}
                 />
-                Bank
+                <span>Bank</span>
               </label>
             </ButtonsContainer>
           </DrumMachineLogicContainer>
