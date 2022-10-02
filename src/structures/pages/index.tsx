@@ -238,9 +238,7 @@ const DrumPad = styled.button`
   border: none;
   border-radius: 15px;
   display: grid;
-  grid-template: repeat(3, 1fr) / 1fr;
-  align-items: end;
-  justify-items: start;
+  place-items: center;
   padding: 8%;
 
   & span {
@@ -248,20 +246,6 @@ const DrumPad = styled.button`
     padding: 0;
     margin: 0;
     font-size: 0.55em;
-  }
-
-  & span:first-of-type {
-    justify-self: start;
-    grid-row-start: 3;
-    grid-row-end: 4;
-    opacity: 0;
-  }
-
-  & span:last-of-type {
-    justify-self: center;
-    align-self: center;
-    grid-row-start: 2;
-    grid-row-end: 3;
   }
 
   &:focus {
@@ -354,7 +338,8 @@ const IndexPage = ({ data }: IndexPageProps) => {
   const hDk2Src1 = data.hDk2Src1.nodes[0].publicURL;
   const hDk2Src2 = data.hDk2Src2.nodes[0].publicURL;
 
-  const [powerState, setPowerState] = useState(false);
+  const [isiOS] = useState(useDetectiOS);
+  const [powerState, setPowerState] = useState(!isiOS);
   const [soundBankState, setSoundBankState] = useState(false); // false = dk1, true = dk2
   const [drumKitOne, setDrumKitOne] = useState<Howl>();
   const [drumKitTwo, setDrumKitTwo] = useState<Howl>();
@@ -550,32 +535,26 @@ const IndexPage = ({ data }: IndexPageProps) => {
   // update display message
   const updateDisplay = useCallback(
     (pressedDrumPad: string) => {
-      let message = displayMessage;
-      const drumPadKeys: string[] = [];
-      accessKeys.forEach((key) => drumPadKeys.push(key.keyTrigger));
+      if (powerState) {
+        let message = '';
+        const drumPadKeys: string[] = [];
+        accessKeys.forEach((key) => drumPadKeys.push(key.keyTrigger));
 
-      if (pressedDrumPad === 'b') {
-        message = soundBankState ? 'BANK: Korg MR-16 Kit' : 'BANK: Nintendo NES Kit';
-        setDisplayMessage(message);
-      } else if (drumPadKeys.some((key) => key === pressedDrumPad)) {
-        const audioThatPlayed = `${
-          accessKeys.find((key) => key.keyTrigger === pressedDrumPad)?.audio
-        }`;
-        message = `${audioThatPlayed.charAt(0).toUpperCase()}${audioThatPlayed.slice(1)}`;
-        setDisplayMessage(message);
+        if (pressedDrumPad === 'b') {
+          message = soundBankState ? 'BANK: Korg MR-16 Kit' : 'BANK: Nintendo NES Kit';
+          setDisplayMessage(message);
+        } else if (drumPadKeys.some((key) => key === pressedDrumPad)) {
+          const audioThatPlayed = `${
+            accessKeys.find((key) => key.keyTrigger === pressedDrumPad)?.audio
+          }`;
+          message = `${audioThatPlayed.charAt(0).toUpperCase()}${audioThatPlayed.slice(1)}`;
+
+          setDisplayMessage(message);
+        }
       }
     },
-    [displayMessage, soundBankState],
+    [powerState, soundBankState],
   );
-
-  // listens for updates to display
-  useEffect(() => {
-    if (displayRef.current) {
-      const display = displayRef.current.firstChild as HTMLSpanElement;
-
-      display.textContent = displayMessage;
-    }
-  }, [displayMessage]);
 
   /* ----------------------------- handle inputs ------------------------------ */
 
@@ -584,10 +563,13 @@ const IndexPage = ({ data }: IndexPageProps) => {
   const handleFakeNoise = (event: React.MouseEvent) => {
     const target = event.target as HTMLButtonElement;
     const fakeDrumAudioSrc = target.lastElementChild as HTMLAudioElement;
+    const pressedPadButton = accessKeys.find((key) => key.audio === target.id)?.keyTrigger ?? '';
 
     if (fakeDrumAudioSrc) {
       fakeDrumAudioSrc.play();
     }
+
+    updateDisplay(pressedPadButton);
   };
 
   // handle mouse inputs
@@ -725,6 +707,13 @@ const IndexPage = ({ data }: IndexPageProps) => {
     return drumPads;
   };
 
+  // iOS starts in off state, as they don't like to preload audio.
+  useEffect(() => {
+    if (!isiOS) {
+      setupDrumKits();
+    }
+  }, [isiOS, setupDrumKits]);
+
   /* --------------------------------- render --------------------------------- */
 
   return (
@@ -765,7 +754,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
               )}
             </KnobContainer>
             <Display ref={displayRef}>
-              <span id="display">I&apos;m a screen.</span>
+              <span id="display">{displayMessage}</span>
             </Display>
             <ButtonsContainer>
               <label htmlFor="PowerButton">
