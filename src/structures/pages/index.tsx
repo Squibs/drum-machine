@@ -193,10 +193,11 @@ const ButtonsContainer = styled.div`
       background-color: #f2f2f2;
       border: none;
       border-radius: 15px;
+      border-bottom: 6px solid red;
+      box-shadow: -2px 2px 3px 3px rgba(0, 0, 0, 0.75);
 
       &:focus {
         outline: none;
-        box-shadow: none;
       }
     }
   }
@@ -241,6 +242,8 @@ const DrumPad = styled.button`
   display: grid;
   place-items: center;
   padding: 8%;
+  border-bottom: 8px solid red;
+  box-shadow: -2px 2px 3px 3px rgba(0, 0, 0, 0.75);
 
   & span {
     pointer-events: none;
@@ -252,7 +255,6 @@ const DrumPad = styled.button`
 
   &:focus {
     outline: none;
-    box-shadow: none;
   }
 
   ${({ theme }) => theme.breakpoints.for2SlightlyBiggerPhoneUp()`
@@ -439,9 +441,20 @@ const IndexPage = ({ data }: IndexPageProps) => {
 
   // change drum pad button color when pressed
   const buttonActivated = (pressedDrumPad: string) => {
-    const el = document.getElementById(
+    let el = document.getElementById(
       accessKeys.find((key) => key.keyTrigger === pressedDrumPad)?.audio ?? '',
     );
+
+    if (pressedDrumPad === 'b') {
+      el = document.getElementById('BankButton');
+    }
+
+    if (pressedDrumPad === 'p') {
+      if (!powerState) {
+        el = document.getElementById('PowerButton');
+      }
+    }
+
     el?.classList.add('activated');
 
     // delay removing of add activated class to highlight pressed buttons
@@ -613,6 +626,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
     // if power is pressed
     if (target.id === 'PowerButton') {
       setPowerState(!powerState);
+      buttonActivated('p');
 
       // loads/calls drumkits
       if (!drumKitOne && !drumKitTwo) {
@@ -625,6 +639,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
       // for sound bank switching
       if (target.id === 'BankButton') {
         setSoundBankState(!soundBankState);
+        buttonActivated('b');
         updateDisplay('b');
       } else {
         // for any other button
@@ -641,6 +656,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
       // if power is pressed
       if (event.key === 'p' || event.keyCode === 80) {
         setPowerState(!powerState);
+        buttonActivated('p');
 
         // loads/calls drumkits
         if (!drumKitOne && !drumKitTwo) {
@@ -653,6 +669,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
         // for sound bank switching
         if (event.key === 'b' || event.keyCode === 66) {
           setSoundBankState(!soundBankState);
+          buttonActivated('b');
           updateDisplay(event.key);
         } else {
           // for freeCodeCamp test suite
