@@ -83,6 +83,7 @@ const Knob = ({ id, degrees, min, max, value, size }: KnobProps) => {
   let currentDeg = Math.floor(convertRange(min, max, startAngle, endAngle, value));
 
   const [deg, setDeg] = useState<number>(currentDeg);
+  const [currentValue, setCurrentValue] = useState<number>(value);
 
   const getDeg = (clientX: number, clientY: number, pts: { x: number; y: number }) => {
     const x = clientX - pts.x;
@@ -112,6 +113,10 @@ const Knob = ({ id, degrees, min, max, value, size }: KnobProps) => {
       currentDeg = getDeg(e.clientX, e.clientY, pts);
       if (currentDeg === startAngle) currentDeg -= 1;
       setDeg(currentDeg);
+
+      // set current value based on passed min and max.
+      const newValue = Math.floor(convertRange(startAngle, endAngle, min, max, currentDeg));
+      setCurrentValue(newValue);
     };
 
     document.addEventListener('mousemove', moveHandler);
@@ -121,7 +126,7 @@ const Knob = ({ id, degrees, min, max, value, size }: KnobProps) => {
   };
 
   const renderTicks = () => {
-    const numTicks = 38; // number of ticks
+    const numTicks = 38; // number of ticks around knob
     const ticks = [];
     const incr = degrees / (numTicks - 1);
     const tSize = size * 0.15 + size / 2;
@@ -170,7 +175,7 @@ const Knob = ({ id, degrees, min, max, value, size }: KnobProps) => {
       <KnobTicks>{renderTicks()}</KnobTicks>
       <KnobOuter
         role="slider"
-        aria-valuenow={deg}
+        aria-valuenow={currentValue}
         className="knob outer"
         style={outerStyle}
         onMouseDown={startDrag}
