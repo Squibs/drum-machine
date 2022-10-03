@@ -136,6 +136,7 @@ const KnobContainer = styled.div`
       & .knob { display: flex; }
       & label {
         grid-template: 2fr 1fr / 1fr;
+        & div { margin-bottom: 5px; }
       }
     }
   `}
@@ -338,8 +339,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
   const hDk2Src1 = data.hDk2Src1.nodes[0].publicURL;
   const hDk2Src2 = data.hDk2Src2.nodes[0].publicURL;
 
-  const [isiOS] = useState(useDetectiOS);
-  const [powerState, setPowerState] = useState(!isiOS);
+  const [powerState, setPowerState] = useState(false);
   const [soundBankState, setSoundBankState] = useState(false); // false = dk1, true = dk2
   const [drumKitOne, setDrumKitOne] = useState<Howl>();
   const [drumKitTwo, setDrumKitTwo] = useState<Howl>();
@@ -792,13 +792,6 @@ const IndexPage = ({ data }: IndexPageProps) => {
 
     return drumPads;
   };
-
-  // iOS starts in off state, as they don't like to preload audio.
-  useEffect(() => {
-    if (!isiOS) {
-      setupDrumKits();
-    }
-  }, [isiOS, setupDrumKits]);
 
   /* --------------------------------- render --------------------------------- */
 

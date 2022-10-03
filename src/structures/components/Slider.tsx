@@ -22,7 +22,7 @@ const SliderWithStyles = styled.input`
     margin-top: -13.4px;
     width: 18px;
     height: 38px;
-    background: #23ebdf;
+    background: #f2f2f2;
     border: 2.2px solid #000000;
     border-radius: 12px;
     cursor: pointer;
@@ -42,7 +42,7 @@ const SliderWithStyles = styled.input`
   &::-moz-range-thumb {
     width: 18px;
     height: 38px;
-    background: #23ebdf;
+    background: #f2f2f2;
     border: 2.2px solid #000000;
     border-radius: 12px;
     cursor: pointer;
@@ -69,7 +69,7 @@ const SliderWithStyles = styled.input`
   &::-ms-thumb {
     width: 18px;
     height: 38px;
-    background: #23ebdf;
+    background: #f2f2f2;
     border: 2.2px solid #000000;
     border-radius: 12px;
     cursor: pointer;

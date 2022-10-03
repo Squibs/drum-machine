@@ -34,7 +34,7 @@ const KnobGrip = styled.div`
   bottom: 2%;
   left: 50%;
   transform: translateX(-50%);
-  background: #509eec;
+  background: #f2f2f2;
   box-shadow: 0 0 3px 1px black;
 `;
 
@@ -51,7 +51,7 @@ const KnobTicks = styled.div`
     transition: box-shadow 0.5s;
 
     &.active {
-      box-shadow: inset 0 0 5px 2px #509eec, 0 0 0 1px #369;
+      /* box-shadow: inset 0 0 5px 2px #509eec, 0 0 0 1px #369; */
     }
   }
 `;
