@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { graphql } from 'gatsby';
 import styled from 'styled-components';
 import { Howl } from 'howler';
-import { Knob, SEO } from '../components';
+import { Knob, SEO, Slider } from '../components';
 import { useAppDispatch, useAppSelector, useDetectiOS, useMediaQuery } from '../hooks';
 import { adjustPan, adjustPitch, adjustVolume } from '../../store/knobs/knobSlice';
 
@@ -119,10 +119,6 @@ const KnobContainer = styled.div`
     display: grid;
     grid-template: 1fr / 1fr 2fr;
     align-items: center;
-  }
-
-  & input {
-    width: 90%;
   }
 
   /* knobs only display on larger screens */
@@ -525,22 +521,29 @@ const IndexPage = ({ data }: IndexPageProps) => {
       powerButtonRef.current &&
       bankButtonRef.current &&
       drumPadContainerRef.current &&
-      displayRef.current
+      displayRef.current &&
+      document.getElementById('volumeKnob') !== null &&
+      document.getElementById('pitchKnob') !== null &&
+      document.getElementById('panKnob') !== null
     ) {
-      const powerButton = powerButtonRef.current.classList;
-      const bankButton = bankButtonRef.current.classList;
+      const powerButton = powerButtonRef.current;
+      const bankButton = bankButtonRef.current;
       const drumPadChildren = drumPadContainerRef.current.childNodes;
       const display = displayRef.current.firstChild as HTMLSpanElement;
+      const volumeKnob = document.getElementById('volumeKnob');
+      const pitchKnob = document.getElementById('pitchKnob');
+      const panKnob = document.getElementById('panKnob');
+
+      const elementsToUpdate = [powerButton, bankButton, display, volumeKnob, pitchKnob, panKnob];
 
       if (powerState) {
         // Bank A
         if (!soundBankState) {
-          powerButton.remove('activatedThemeTwo');
-          bankButton.remove('activatedThemeTwo');
-          display.classList.remove('activatedThemeTwo');
-          powerButton.add('activatedThemeOne');
-          bankButton.add('activatedThemeOne');
-          display.classList.add('activatedThemeOne');
+          elementsToUpdate.forEach((element) => {
+            const e = element as HTMLElement;
+            e.classList.remove('activatedThemeTwo');
+            e.classList.add('activatedThemeOne');
+          });
 
           drumPadChildren.forEach((child) => {
             const c = child as HTMLButtonElement;
@@ -551,12 +554,11 @@ const IndexPage = ({ data }: IndexPageProps) => {
 
         // Bank B
         if (soundBankState) {
-          powerButton.remove('activatedThemeOne');
-          bankButton.remove('activatedThemeOne');
-          display.classList.remove('activatedThemeOne');
-          powerButton.add('activatedThemeTwo');
-          bankButton.add('activatedThemeTwo');
-          display.classList.add('activatedThemeTwo');
+          elementsToUpdate.forEach((element) => {
+            const e = element as HTMLElement;
+            e.classList.remove('activatedThemeOne');
+            e.classList.add('activatedThemeTwo');
+          });
 
           drumPadChildren.forEach((child) => {
             const c = child as HTMLButtonElement;
@@ -568,10 +570,12 @@ const IndexPage = ({ data }: IndexPageProps) => {
 
       // if power is off remove background colors
       if (!powerState) {
-        powerButton.remove('activatedThemeOne', 'activatedThemeTwo');
-        bankButton.remove('activatedThemeOne', 'activatedThemeTwo');
-        display.classList.remove('activatedThemeOne', 'activatedThemeTwo');
         display.textContent = `\u00a0`; // non-breaking space character to hold screen size
+
+        elementsToUpdate.forEach((element) => {
+          const e = element as HTMLElement;
+          e.classList.remove('activatedThemeOne', 'activatedThemeTwo');
+        });
 
         drumPadChildren.forEach((child) => {
           const c = child as HTMLButtonElement;
@@ -738,13 +742,10 @@ const IndexPage = ({ data }: IndexPageProps) => {
         ) : (
           <>
             {text}
-            <input
-              type="range"
+            <Slider
               id={id}
-              min="1"
-              max="100"
               value={relatedValue}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 if (id === 'volumeKnob') {
                   dispatch(adjustVolume(Number(e.target.value)));
                 }

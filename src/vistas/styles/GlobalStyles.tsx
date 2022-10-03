@@ -24,12 +24,29 @@ const GlobalStyle = createGlobalStyle`
   /* activated drum pad color / make button look pressed */
   .activatedThemeOne {
     background-color: #23ebdf !important;
+    color: black;
+  }
+  input.activatedThemeOne[type='range']{
+    background-color: transparent !important;
+    &::-webkit-slider-thumb {background: #23ebdf !important;}
+    &::-moz-range-thumb {background: #23ebdf !important;}
+    &::-ms-thumb {background: #23ebdf !important;}
   }
   .activatedThemeTwo {
-    background-color:  #ef2af3 !important;
+    background-color:  #F24DF5 !important;
+  }
+  input.activatedThemeTwo[type='range'] {
+    background-color: transparent !important;
+    &::-webkit-slider-thumb {background: #F24DF5 !important;}
+    &::-moz-range-thumb {background: #F24DF5 !important;}
+    &::-ms-thumb {background: #F24DF5 !important;}
   }
   .activated {
     background-color: red !important;
+  }
+
+  input[type="range"] {
+    /* background-color: pink; */
   }
 `;
 
