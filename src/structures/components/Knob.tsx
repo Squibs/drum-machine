@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { adjustPan, adjustPitch, adjustVolume } from '../../store/knobs/knobSlice';
+import { useAppDispatch } from '../hooks';
 
 /* All credit goes to Daniel Subat on codepen. https://codepen.io/bbx/pen/QBKYOy */
 /* I only translated what he has created into React functional components with typescript
@@ -77,6 +79,8 @@ const Knob = ({ id, degrees, min, max, value, size }: KnobProps) => {
   ) => {
     return ((oldValue - oldMin) * (newMax - newMin)) / (oldMax - oldMin) + newMin;
   };
+
+  const dispatch = useAppDispatch();
 
   const startAngle = (360 - degrees) / 2;
   const endAngle = startAngle + degrees;
@@ -169,6 +173,20 @@ const Knob = ({ id, degrees, min, max, value, size }: KnobProps) => {
   const outerStyle = duplicateCopy(knobStyle);
 
   innerStyle.transform = `rotate(${deg}deg)`;
+
+  useEffect(() => {
+    if (id === 'volumeKnob') {
+      dispatch(adjustVolume(currentValue));
+    }
+
+    if (id === 'panKnob') {
+      dispatch(adjustPan(currentValue));
+    }
+
+    if (id === 'pitchKnob') {
+      dispatch(adjustPitch(currentValue));
+    }
+  }, [currentValue, dispatch, id]);
 
   return (
     <KnobWithStyles id={id} className="knob" style={knobStyle}>

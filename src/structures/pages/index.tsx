@@ -3,7 +3,8 @@ import { graphql } from 'gatsby';
 import styled from 'styled-components';
 import { Howl } from 'howler';
 import { Knob, SEO } from '../components';
-import { useDetectiOS, useMediaQuery } from '../hooks';
+import { useAppDispatch, useAppSelector, useDetectiOS, useMediaQuery } from '../hooks';
+import { adjustPan, adjustPitch, adjustVolume } from '../../store/knobs/knobSlice';
 
 // Big thanks to https://andrcohen847.medium.com/designing-an-interactive-simple-sound-board-with-howler-js-and-react-91d00b899c8c
 // Howler was the key to getting iOS audio working.
@@ -243,6 +244,7 @@ const DrumPad = styled.button`
 
   & span {
     pointer-events: none;
+    user-select: none;
     padding: 0;
     margin: 0;
     font-size: 0.55em;
@@ -345,6 +347,11 @@ const IndexPage = ({ data }: IndexPageProps) => {
   const [drumKitTwo, setDrumKitTwo] = useState<Howl>();
   const [displayMessage, setDisplayMessage] = useState(`\u00a0`);
 
+  const dispatch = useAppDispatch();
+  const volume = useAppSelector((state) => state.knobs.volumeKnob);
+  const pitch = useAppSelector((state) => state.knobs.pitchKnob);
+  const pan = useAppSelector((state) => state.knobs.panKnob);
+
   const powerButtonRef = useRef<HTMLInputElement>(null);
   const bankButtonRef = useRef<HTMLInputElement>(null);
   const drumPadContainerRef = useRef<HTMLDivElement>(null);
@@ -377,6 +384,30 @@ const IndexPage = ({ data }: IndexPageProps) => {
     default:
       knobSize = 80;
   }
+
+  // these are used for the sliders and knobs, auto updates from state
+  const convertRange = (
+    oldMin: number,
+    oldMax: number,
+    newMin: number,
+    newMax: number,
+    oldValue: number,
+  ) => ((oldValue - oldMin) * (newMax - newMin)) / (oldMax - oldMin) + newMin;
+
+  useEffect(() => {
+    if (drumKitOne) {
+      // @ts-expect-error jank workaround for howler undefined error when normally trying to adjust rate on a howl
+      Howler._howls[0]._rate = convertRange(0, 100, 0.1, 2, pitch); // eslint-disable-line no-underscore-dangle
+    }
+  }, [drumKitOne, pitch]);
+
+  useEffect(() => {
+    Howler.stereo(convertRange(0, 100, -1, 1, pan));
+  }, [pan]);
+
+  useEffect(() => {
+    Howler.volume(volume / 100);
+  }, [volume]);
 
   /* ----------------------------- control helpers ---------------------------- */
 
@@ -446,6 +477,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
         tom1: [20000, 284.37641723355966],
         tom2: [22000, 266.0544217687075],
       },
+      rate: 1,
     });
 
     const drumSamples2 = new Howl({
@@ -464,6 +496,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
         tom1: [20000, 83.53741496598488],
         tom2: [22000, 162.69841269841123],
       },
+      rate: 1,
     });
 
     setDrumKitOne(drumSamples1);
@@ -662,6 +695,18 @@ const IndexPage = ({ data }: IndexPageProps) => {
       <Knob key={id} id={id} size={size} degrees={182} min={1} max={100} value={50} />
     );
 
+    let relatedValue = '';
+
+    if (id === 'volumeKnob') {
+      relatedValue = volume.toString();
+    } else if (id === 'panKnob') {
+      relatedValue = pan.toString();
+    } else if (id === 'pitchKnob') {
+      relatedValue = pitch.toString();
+    } else {
+      relatedValue = '50';
+    }
+
     return (
       <label htmlFor={id}>
         {type === 'knob' ? (
@@ -672,7 +717,26 @@ const IndexPage = ({ data }: IndexPageProps) => {
         ) : (
           <>
             {text}
-            <input type="range" id={id} min="1" max="100" />
+            <input
+              type="range"
+              id={id}
+              min="1"
+              max="100"
+              value={relatedValue}
+              onChange={(e) => {
+                if (id === 'volumeKnob') {
+                  dispatch(adjustVolume(Number(e.target.value)));
+                }
+
+                if (id === 'panKnob') {
+                  dispatch(adjustPan(Number(e.target.value)));
+                }
+
+                if (id === 'pitchKnob') {
+                  dispatch(adjustPitch(Number(e.target.value)));
+                }
+              }}
+            />
           </>
         )}
       </label>
