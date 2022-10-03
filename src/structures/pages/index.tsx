@@ -440,37 +440,40 @@ const IndexPage = ({ data }: IndexPageProps) => {
   );
 
   // change drum pad button color when pressed
-  const buttonActivated = (pressedDrumPad: string) => {
-    let el = document.getElementById(
-      accessKeys.find((key) => key.keyTrigger === pressedDrumPad)?.audio ?? '',
-    );
+  const buttonActivated = useCallback(
+    (pressedDrumPad: string) => {
+      let el = document.getElementById(
+        accessKeys.find((key) => key.keyTrigger === pressedDrumPad)?.audio ?? '',
+      );
 
-    if (pressedDrumPad === 'b') {
-      el = document.getElementById('BankButton');
-    }
-
-    if (pressedDrumPad === 'p') {
-      if (!powerState) {
-        el = document.getElementById('PowerButton');
+      if (pressedDrumPad === 'b') {
+        el = document.getElementById('BankButton');
       }
-    }
 
-    el?.classList.add('activated');
+      if (pressedDrumPad === 'p') {
+        if (!powerState) {
+          el = document.getElementById('PowerButton');
+        }
+      }
 
-    // delay removing of add activated class to highlight pressed buttons
-    const delay = (ms: number) => {
-      return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-      });
-    };
+      el?.classList.add('activated');
 
-    const removeActivated = async () => {
-      await delay(75);
-      el?.classList.remove('activated');
-    };
+      // delay removing of add activated class to highlight pressed buttons
+      const delay = (ms: number) => {
+        return new Promise((resolve) => {
+          setTimeout(resolve, ms);
+        });
+      };
 
-    removeActivated();
-  };
+      const removeActivated = async () => {
+        await delay(75);
+        el?.classList.remove('activated');
+      };
+
+      removeActivated();
+    },
+    [powerState],
+  );
 
   // setup drumkits. Has to be after a button press otherwise iOS gets real mad
   const setupDrumKits = useCallback(() => {
@@ -695,6 +698,7 @@ const IndexPage = ({ data }: IndexPageProps) => {
       document.removeEventListener('keydown', handleKeyboardButton);
     };
   }, [
+    buttonActivated,
     drumKitOne,
     drumKitTwo,
     playAudioForDrumPad,
