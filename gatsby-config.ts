@@ -43,7 +43,7 @@ const config: GatsbyConfig = {
         background_color: `#663399`,
         theme_color: `#663399`,
         display: `minimal-ui`,
-        icon: `src/media/images/favicon.svg`,
+        icon: `src/media/images/favicon.png`,
       },
     },
     `gatsby-plugin-styled-components`, // styled-components
