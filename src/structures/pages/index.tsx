@@ -124,6 +124,7 @@ const KnobContainer = styled.div`
   /* knobs only display on larger screens */
   & .knob {
     display: none;
+    margin-left: 2px;
   }
 
   /* knobs only display if a pointing device is available */
