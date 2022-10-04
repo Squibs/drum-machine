@@ -393,11 +393,13 @@ const IndexPage = ({ data }: IndexPageProps) => {
   ) => ((oldValue - oldMin) * (newMax - newMin)) / (oldMax - oldMin) + newMin;
 
   useEffect(() => {
-    if (drumKitOne) {
+    if (drumKitOne && drumKitTwo) {
       // @ts-expect-error jank workaround for howler undefined error when normally trying to adjust rate on a howl
       Howler._howls[0]._rate = convertRange(0, 100, 0.1, 2, pitch); // eslint-disable-line no-underscore-dangle
+      // @ts-expect-error jank workaround for howler undefined error when normally trying to adjust rate on a howl
+      Howler._howls[1]._rate = convertRange(0, 100, 0.1, 2, pitch); // eslint-disable-line no-underscore-dangle
     }
-  }, [drumKitOne, pitch]);
+  }, [drumKitOne, drumKitTwo, pitch]);
 
   useEffect(() => {
     Howler.stereo(convertRange(0, 100, -1, 1, pan));
