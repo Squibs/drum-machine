@@ -5,7 +5,7 @@ const config: GatsbyConfig = {
     title: `Squibs`,
     description: `A drum machine I created while going through the projects and lessons at freeCodeCamp.`,
     author: `@SquibsVids`,
-    siteUrl: `https://https://squibs.github.io/drum-machine`,
+    siteUrl: `https://drum-machine.squibs.vercel.app/`,
   },
   plugins: [
     {
